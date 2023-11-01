@@ -5,8 +5,9 @@ export const RootLayout = () => {
     <div className="root-layout">
       <header>
         <nav>
-          <Link to="/" />
-          <h1>Open Food Facts </h1>
+          <Link to="">
+            <h1>Open Food Facts </h1>
+          </Link>
         </nav>
       </header>
       <main>

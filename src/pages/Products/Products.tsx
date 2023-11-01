@@ -8,12 +8,11 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 
-import { useData } from './hooks';
-import { Search } from '../../components';
+import { Search, Pagination } from '../../components';
+import ApiClient from '../../app/ApiClient';
 
 import { ProductsContainer } from './components';
-import Pagination from '../../components/Pagination';
-import ApiClient from '../../app/ApiClient';
+import { useData } from './hooks';
 import { SearchResults } from './types';
 
 export const ProductsPage = () => {
