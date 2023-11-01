@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, ScrollRestoration } from 'react-router-dom';
 
 export const RootLayout = () => {
   return (
@@ -13,6 +13,7 @@ export const RootLayout = () => {
       <main>
         <Outlet />
       </main>
+      <ScrollRestoration />
     </div>
   );
 };
