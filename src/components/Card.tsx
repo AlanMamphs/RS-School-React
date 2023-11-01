@@ -1,20 +1,14 @@
-import { PureComponent } from 'react';
-
-type Props = {
+export const Card = (props: {
   header: string;
   image: string;
   brands: string;
-};
-export default class Card extends PureComponent<Props> {
-  render() {
-    return (
-      <div className="card">
-        <div className="card-image">
-          <img src={this.props.image} />
-        </div>
-        <h3>{this.props.header}</h3>
-        <p>{this.props.brands}</p>
-      </div>
-    );
-  }
-}
+  isActive: boolean;
+}) => (
+  <div className={`card ${props.isActive ? 'active' : ''}`}>
+    <div className="card-image">
+      <img src={props.image} />
+    </div>
+    <h3 title={props.header}>{props.header}</h3>
+    <p title={props.brands}>{props.brands}</p>
+  </div>
+);

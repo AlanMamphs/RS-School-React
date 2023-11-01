@@ -1,7 +1,5 @@
-import { PropsWithChildren, PureComponent } from 'react';
+import { PropsWithChildren } from 'react';
 
-export default class Container extends PureComponent<PropsWithChildren> {
-  render() {
-    return <div className="container">{this.props.children}</div>;
-  }
-}
+export const Container = (props: PropsWithChildren) => (
+  <div className="container">{props.children}</div>
+);

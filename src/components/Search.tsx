@@ -1,33 +1,29 @@
-import {
-  InputHTMLAttributes,
-  KeyboardEventHandler,
-  PureComponent,
-  ReactNode,
-} from 'react';
+import { InputHTMLAttributes, KeyboardEventHandler } from 'react';
 
 interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   onSearchClick: () => void;
 }
-export default class Search extends PureComponent<Props> {
-  handleKeyPress: KeyboardEventHandler = (e) => {
+
+export const Search = (props: Props) => {
+  const { onSearchClick, value, ...htmlInputProps } = props;
+
+  const handleKeyPress: KeyboardEventHandler = (e) => {
     if (e.key === 'Enter') {
-      this.props.onSearchClick();
+      props.onSearchClick();
     }
   };
-  render(): ReactNode {
-    const { onSearchClick, value, ...htmlInputProps } = this.props;
-    return (
-      <div className="search-input">
-        <input
-          type="search"
-          value={value}
-          {...htmlInputProps}
-          onKeyDown={this.handleKeyPress}
-        />
-        <button disabled={!value} onClick={onSearchClick}>
-          Search
-        </button>
-      </div>
-    );
-  }
-}
+
+  return (
+    <div className="search-input">
+      <input
+        type="search"
+        value={value}
+        {...htmlInputProps}
+        onKeyDown={handleKeyPress}
+      />
+      <button disabled={!value} onClick={onSearchClick}>
+        Search
+      </button>
+    </div>
+  );
+};
