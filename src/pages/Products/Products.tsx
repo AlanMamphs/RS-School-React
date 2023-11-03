@@ -38,8 +38,8 @@ export const ProductsPage = () => {
         onChange={handleSearchChange}
         onSearchClick={handleSearch}
       />
-      <div className="products-section">
-        <div className="products-list-wrapper">
+      <div className="flex gap-4">
+        <div className="grow">
           {id && (
             <Link to={`/products?${searchParams.toString()}`}>
               <div className="overlay active" />

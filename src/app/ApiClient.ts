@@ -9,7 +9,7 @@ class ApiClient {
       searchSimple: '1',
       action: 'process',
       json: '1',
-      page_size: '12',
+      page_size: '24',
       ...searchParams,
     });
   }

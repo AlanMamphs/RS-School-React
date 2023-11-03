@@ -3,3 +3,4 @@ export * from './Container';
 export * from './ErrorBoundary';
 export * from './Search';
 export * from './Pagination';
+export * from './Table';

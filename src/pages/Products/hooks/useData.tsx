@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigation } from 'react-router-dom';
+import {
+  useSearchParams,
+  useNavigation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 
 import { SearchResults } from '../types';
 
 export const useData = ({ onLoadData }: { onLoadData: SearchResults }) => {
   const [loading, setLoading] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResults>(onLoadData);
+  const { id } = useParams();
   const navigation = useNavigation();
+  const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -16,8 +23,17 @@ export const useData = ({ onLoadData }: { onLoadData: SearchResults }) => {
     setLoading(false);
   }, [searchParams, onLoadData]);
 
+  const handleSearch = () => {
+    if (id) {
+      navigate(`/products?page=${1}`);
+    } else {
+      setSearchParams({
+        page: '1',
+      });
+    }
+  };
   return {
-    handleSearch: () => setSearchParams({ page: '1' }),
+    handleSearch,
     data: searchResult,
     loading: navigation.state === 'loading' || loading,
   };
