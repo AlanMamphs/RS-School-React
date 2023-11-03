@@ -1,5 +1,5 @@
 import { Link, useSearchParams, useParams } from 'react-router-dom';
-import { Card, Container } from '../../../components';
+import { Card, GridContainer } from '../../../components';
 import { Product } from '../types';
 
 export const ProductsContainer = (props: {
@@ -17,31 +17,25 @@ export const ProductsContainer = (props: {
     return <div>{props.error}</div>;
   }
 
+  const getNextUrl = (productId: string) => {
+    return `${
+      productId === id ? `/products` : `/products/${productId}`
+    }?${searchParams.toString()}`;
+  };
+
   return (
-    <Container>
+    <GridContainer>
       {!props.data.length && <div className="m-8">No results</div>}
-      {props.data.map((product) =>
-        String(product.id) !== id ? (
-          <Link
-            to={`${product.id ?? product.code}?${searchParams.toString()}`}
-            key={product.id}
-          >
-            <Card
-              header={product.product_name}
-              image={product.image_front_url}
-              brands={product.brands}
-            />
-          </Link>
-        ) : (
+      {props.data.map((product) => (
+        <Link to={getNextUrl(product.id ?? product.code)} key={product.id}>
           <Card
-            key={product.id}
+            active={String(product.id ?? product.code) === id}
             header={product.product_name}
             image={product.image_front_url}
-            brands={product.brands}
-            isActive
+            description={product.brands}
           />
-        )
-      )}
-    </Container>
+        </Link>
+      ))}
+    </GridContainer>
   );
 };

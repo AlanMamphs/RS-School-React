@@ -1,12 +1,5 @@
 import { ChangeEventHandler, useState } from 'react';
-import {
-  LoaderFunction,
-  useLoaderData,
-  Outlet,
-  useParams,
-  Link,
-  useSearchParams,
-} from 'react-router-dom';
+import { LoaderFunction, useLoaderData, Outlet } from 'react-router-dom';
 
 import { Search, Pagination } from '../../components';
 import ApiClient from '../../app/ApiClient';
@@ -17,11 +10,9 @@ import { SearchResults } from './types';
 
 export const ProductsPage = () => {
   const onLoadData = useLoaderData() as SearchResults;
-  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(
     localStorage.getItem('search-term') ?? ''
   );
-  const { id } = useParams();
   const { handleSearch, data, loading } = useData({
     onLoadData,
   });
@@ -40,11 +31,6 @@ export const ProductsPage = () => {
       />
       <div className="flex gap-4">
         <div className="grow">
-          {id && (
-            <Link to={`/products?${searchParams.toString()}`}>
-              <div className="overlay active" />
-            </Link>
-          )}
           <ProductsContainer data={data?.products ?? []} loading={loading} />
         </div>
         <Outlet />
