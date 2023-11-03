@@ -5,10 +5,11 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import ApiClient from '../../../app/ApiClient';
-import { FlexContainer } from '../../../components';
-import { ProductTable } from './ProductData';
-import { Product } from '../types';
+import ApiClient from '../../app/ApiClient';
+import { FlexContainer } from '../../components';
+
+import { ProductTable } from './components';
+import { Product } from './types';
 
 export const ProductDetails = () => {
   const { product } = useLoaderData() as { product: Product };
