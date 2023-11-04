@@ -111,6 +111,7 @@ export const ProductsProvider = (props: PropsWithChildren<object>) => {
       .catch((e) => {
         setError(e);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, id]);
 
   return (
