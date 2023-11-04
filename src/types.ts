@@ -5,13 +5,13 @@ export interface Product {
   image_front_url: string;
   brands: string;
   categories: string;
-  allergens: string;
-  countries: string;
-  ingredients_text_en: string;
-  ingredients_text: string;
-  link: string;
-  nutriments: Record<string, number | string>;
-  nutriscore_data: Record<string, number | string>;
+  allergens?: string;
+  countries?: string;
+  ingredients_text_en?: string;
+  ingredients_text?: string;
+  link?: string;
+  nutriments?: Record<string, number | string>;
+  nutriscore_data?: Record<string, number | string>;
 }
 
 export interface SearchResults {

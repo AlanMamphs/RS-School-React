@@ -17,7 +17,7 @@ import {
 import { RootLayout } from './layouts';
 import ErrorBoundary from './components/ErrorBoundary';
 
-const router = createBrowserRouter(
+export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />} ErrorBoundary={ErrorBoundary}>
       <Route index element={<HomePage />} />

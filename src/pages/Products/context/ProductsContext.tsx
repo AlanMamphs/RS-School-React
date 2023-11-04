@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Product, SearchResults } from '../types';
+import { Product, SearchResults } from '../../../types';
 import ApiClient from '../../../app/ApiClient';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -53,7 +53,9 @@ export const ProductsProvider = (props: PropsWithChildren<object>) => {
   const [error, setError] = useState<Error | null>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(
+    localStorage.getItem('search-term') ?? ''
+  );
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [paginationData, setPaginationData] =
     useState<ProductsContext['paginationData']>();

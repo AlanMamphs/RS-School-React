@@ -1,5 +1,5 @@
 import { Table } from '../../../components';
-import { Product } from '../types';
+import { Product } from '../../../types';
 
 export const ProductTable = ({ product }: { product: Product }) => (
   <Table>
@@ -14,7 +14,7 @@ export const ProductTable = ({ product }: { product: Product }) => (
         <Table.Cell className="font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
           Countries
         </Table.Cell>
-        <Table.Cell>{product.countries.split(',').join(', ')}</Table.Cell>
+        <Table.Cell>{product.countries?.split(',').join(', ')}</Table.Cell>
       </Table.Row>
       <Table.Row>
         <Table.Cell className="font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
@@ -36,10 +36,10 @@ export const ProductTable = ({ product }: { product: Product }) => (
         </Table.Cell>
         <Table.Cell>
           <ul>
-            <li>Prots - {product.nutriments.proteins_100g}</li>
-            <li>Carbs - {product.nutriments.carbohydrates_100g}</li>
-            <li>Fats - {product.nutriments.fat_100g}</li>
-            <li>Energy - {product.nutriments['energy-kcal_100g']}</li>
+            <li>Prots - {product.nutriments?.proteins_100g}</li>
+            <li>Carbs - {product.nutriments?.carbohydrates_100g}</li>
+            <li>Fats - {product.nutriments?.fat_100g}</li>
+            <li>Energy - {product.nutriments?.['energy-kcal_100g']}</li>
           </ul>
         </Table.Cell>
       </Table.Row>

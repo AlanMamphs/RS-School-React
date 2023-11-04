@@ -1,7 +1,7 @@
 import { PropsWithChildren, ReactNode } from 'react';
 
 export const CardImage = (props: { image: string }) => (
-  <div className="h-44 w-full">
+  <div role="card-image" className="h-44 w-full">
     <img className="max-h-44 max-w-full mx-auto" src={props.image} />
   </div>
 );
@@ -9,7 +9,10 @@ export const CardImage = (props: { image: string }) => (
 export const CardHeader = (
   props: PropsWithChildren<{ header?: ReactNode }>
 ) => (
-  <h3 className="text-md h-8 whitespace-nowrap overflow-hidden text-ellipsis">
+  <h3
+    role="card-header"
+    className="text-md h-8 whitespace-nowrap overflow-hidden text-ellipsis"
+  >
     {props.header ?? props.children}
   </h3>
 );
@@ -18,6 +21,7 @@ export const CardDescription = (
   props: PropsWithChildren<{ description?: ReactNode; title?: string }>
 ) => (
   <p
+    role="card-description"
     className="text-sm whitespace-nowrap overflow-hidden text-ellipsis h-8"
     title={props.title}
   >
@@ -32,6 +36,7 @@ export const Card = (props: {
   active?: boolean;
 }) => (
   <div
+    role="card"
     className={`bg-white rounded-md shadow-2xl p-4 max-h-[40rem] h-full hover:bg-gray-100  dark:text-black center ${
       props.active ? 'border-4 border-indigo-500' : ''
     }`}

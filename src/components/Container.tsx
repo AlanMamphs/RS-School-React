@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactElement } from 'react';
 import { CloseButton } from './CloseButton';
 
 export const GridContainer = (props: PropsWithChildren) => (
@@ -17,11 +17,14 @@ export const FlexContainer = ({
   header,
   onClose,
   children,
-}: PropsWithChildren<{
-  header?: string;
-  onClose?: () => void;
-}>) => (
-  <div className="flex-1 text-gray-900 dark:text-white">
+  ...otherProps
+}: PropsWithChildren<
+  {
+    header?: string;
+    onClose?: () => void;
+  } & ReactElement['props']
+>) => (
+  <div className="flex-1 text-gray-900 dark:text-white" {...otherProps}>
     <div
       className={
         'flex items-start justify-between p-4 border-b rounded-t dark:text-white '

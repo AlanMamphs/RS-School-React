@@ -6,7 +6,7 @@ import {
   useParams,
 } from 'react-router-dom';
 
-import { SearchResults } from '../types';
+import { SearchResults } from '../../../types';
 
 export const useData = ({ onLoadData }: { onLoadData: SearchResults }) => {
   const [loading, setLoading] = useState(false);

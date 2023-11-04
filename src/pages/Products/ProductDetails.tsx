@@ -16,6 +16,7 @@ export const ProductDetails = () => {
 
   return (
     <FlexContainer
+      role="product-details"
       header={selectedProduct.product_name}
       onClose={() => navigator(`/products?${searchParams.toString()}`)}
     >

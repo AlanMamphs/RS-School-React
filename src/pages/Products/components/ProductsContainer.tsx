@@ -1,6 +1,6 @@
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { Card, GridContainer } from '../../../components';
-import { Product } from '../types';
+import { Product } from '../../../types';
 
 export const ProductsContainer = (props: {
   data: Product[];

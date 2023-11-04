@@ -57,7 +57,7 @@ export const Pagination = ({ totalPages }: { totalPages: number }) => {
   const elipsisClass =
     'flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 ';
   return (
-    <div className="m-8">
+    <div role="pagination" className="m-8">
       <ul className="inline-flex -space-x-px text-sm">
         <li>
           <button

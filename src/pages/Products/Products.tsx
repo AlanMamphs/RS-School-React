@@ -20,15 +20,15 @@ export const ProductsPage = () => {
 
   const handleSearchChange: ChangeEventHandler<HTMLInputElement> = (input) => {
     setSearchTerm(input.target.value);
-    localStorage.setItem('search-term', input.target.value);
   };
 
   return (
-    <div className="products-page">
+    <div data-testid="products-page">
       <Search
         value={searchTerm}
         onChange={handleSearchChange}
         onSearchClick={() => {
+          localStorage.setItem('search-term', searchTerm);
           unselectProduct();
           if (!searchParams.get('page') || searchParams.get('page') === '1') {
             fetchProducts();

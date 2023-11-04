@@ -1,4 +1,4 @@
-import { Product, SearchResults } from '../pages/Products/types';
+import { Product, SearchResults } from '../types';
 
 class ApiClient {
   baseUrl: string;
