@@ -5,13 +5,17 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 
-import { HomePage, ProductsPage, NotFoundPage } from './pages';
+import {
+  HomePage,
+  NotFoundPage,
+  ProductsPage,
+  ProductDetails,
+  ProductError,
+  ProductsProvider,
+} from './pages';
 
-import './App.css';
 import { RootLayout } from './layouts';
-import { ProductDetails, ProductError } from './pages/Products';
 import ErrorBoundary from './components/ErrorBoundary';
-import { ProductsProvider } from './pages/Products/context';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
