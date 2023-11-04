@@ -6,7 +6,7 @@ import { App, router as Router } from '../App';
 
 import ApiClient from '../app/ApiClient';
 
-import { within } from '@testing-library/react';
+import { within, act } from '@testing-library/react';
 
 const setup = async () => {
   const screen = render(<App />);
@@ -123,7 +123,15 @@ describe('App & Router tests', () => {
   });
 
   it('Ensure that the pagination component correctly displays the pagination data', async () => {
-    const { queryAllByRole, queryAllByText, getByRole, user } = await setup();
+    const fetchProductsSpy = vi.spyOn(ApiClient, 'fetchProducts');
+
+    const { getByText, queryAllByRole, queryAllByText, getByRole, user } =
+      await setup();
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: null,
+      search_terms: '',
+    });
 
     expect(queryAllByRole('card').length).toBe(24);
 
@@ -132,16 +140,67 @@ describe('App & Router tests', () => {
 
     await user.click(within(getByRole('pagination')).getByText(2));
 
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '2',
+      search_terms: '',
+    });
+
     expect(queryAllByText('Product 1')).toHaveLength(0);
     expect(queryAllByText('Product 25')).toHaveLength(1);
 
-    await user.click(within(getByRole('pagination')).getByText(1));
+    await user.click(within(getByRole('pagination')).getByText(/Previous/));
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '1',
+      search_terms: '',
+    });
 
     expect(queryAllByText('Product 1')).toHaveLength(1);
     expect(queryAllByText('Product 25')).toHaveLength(0);
+    await user.click(within(getByRole('pagination')).getByText('3'));
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '3',
+      search_terms: '',
+    });
+
+    expect(queryAllByText('Product 1')).toHaveLength(0);
+    expect(queryAllByText('Product 25')).toHaveLength(0);
+    expect(queryAllByText('Product 49')).toHaveLength(1);
+
+    expect(getByText(/Next/)).toBeVisible();
+    await user.click(within(getByRole('pagination')).getByText('Next'));
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '4',
+      search_terms: '',
+    });
+
+    expect(queryAllByText('Product 1')).toHaveLength(0);
+    expect(queryAllByText('Product 25')).toHaveLength(0);
+    expect(queryAllByText('Product 49')).toHaveLength(0);
+    expect(queryAllByText('Product 75')).toHaveLength(1);
 
     await user.click(queryAllByRole('card')[0]);
+
     expect(getByRole('pagination')).toBeVisible();
+    await user.click(within(getByRole('pagination')).getByText('Next'));
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '5',
+      search_terms: '',
+    });
+
+    await user.type(getByRole('search-input'), 'number-of-products-80');
+    await user.click(getByRole('search-button'));
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '1',
+      search_terms: 'number-of-products-80',
+    });
+    await user.click(within(getByRole('pagination')).getByText('Next'));
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '2',
+      search_terms: 'number-of-products-80',
+    });
   });
   it('Verify that clicking the Search button saves the entered value to the local storage', async () => {
     const { getByRole, user } = await setup();
@@ -169,8 +228,10 @@ describe('App & Router tests', () => {
     await user.type(getByRole('search-input'), 'Some value');
     expect(localStorage.getItem('search-term')).toBe(null);
 
-    fireEvent.keyDown(getByRole('search-input'), {
-      key: 'Enter',
+    act(() => {
+      fireEvent.keyDown(getByRole('search-input'), {
+        key: 'Enter',
+      });
     });
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -187,6 +248,7 @@ describe('App & Router tests', () => {
       search_terms: 'Some value',
     });
   });
+
   it('Ensure that the 404 page is displayed when navigating to an invalid route', async () => {
     const { getByText } = render(<App />);
     Router.navigate('/invalid/href');

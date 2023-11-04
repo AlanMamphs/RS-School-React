@@ -5,7 +5,7 @@ import { Product } from '../../../types';
 export const ProductsContainer = (props: {
   data: Product[];
   loading?: boolean;
-  error?: string | null;
+  error?: Error | null;
 }) => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -14,7 +14,7 @@ export const ProductsContainer = (props: {
   }
 
   if (props.error) {
-    return <div>{props.error}</div>;
+    return <div>{props.error.message}</div>;
   }
 
   const getNextUrl = (productId: string) => {

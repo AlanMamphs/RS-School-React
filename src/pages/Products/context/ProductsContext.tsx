@@ -21,9 +21,9 @@ type ProductsContext = {
   };
   selectedProduct: Product | null;
   searchTerm: string;
+  loading: boolean;
   setSearchTerm: (searchTerm: string) => void;
   error: Error | null;
-  setError: (error: Error | null) => void;
   fetchProducts: () => void;
   unselectProduct: () => void;
 };
@@ -35,10 +35,8 @@ export const ProductsContext = createContext<ProductsContext>({
   setSearchTerm: () => {
     throw new Error('not implemented');
   },
+  loading: false,
   error: null,
-  setError: () => {
-    throw new Error('not implemented');
-  },
   fetchProducts: () => {
     throw new Error('not implemented');
   },
@@ -108,11 +106,18 @@ export const ProductsProvider = (props: PropsWithChildren<object>) => {
   useEffect(() => {
     setSelectedProduct(null);
     setProducts([]);
-    Promise.all([handleFetchProducts(), handleFetchProduct()])
-      .then(() => setLoading(false))
-      .catch((e) => {
-        setError(e);
-      });
+    try {
+      Promise.all([handleFetchProducts(), handleFetchProduct()])
+        .then(() => setLoading(false))
+        .catch((e) => {
+          setError(e);
+          setLoading(false);
+        });
+    } catch (e) {
+      setError(e as Error);
+    } finally {
+      setLoading(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, id]);
 
@@ -125,7 +130,7 @@ export const ProductsProvider = (props: PropsWithChildren<object>) => {
         searchTerm,
         setSearchTerm,
         error,
-        setError,
+        loading,
         paginationData,
         unselectProduct: () => setSelectedProduct(null),
       }}

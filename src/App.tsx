@@ -10,12 +10,11 @@ import {
   NotFoundPage,
   ProductsPage,
   ProductDetails,
-  ProductError,
   ProductsProvider,
 } from './pages';
 
 import { RootLayout } from './layouts';
-import ErrorBoundary from './components/ErrorBoundary';
+import { ErrorBoundary } from './components';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,7 +27,6 @@ export const router = createBrowserRouter(
             <ProductsPage />
           </ProductsProvider>
         }
-        errorElement={<ProductError />}
       >
         <Route path=":id" element={<ProductDetails />} />
       </Route>
@@ -37,5 +35,3 @@ export const router = createBrowserRouter(
   )
 );
 export const App = () => <RouterProvider router={router} />;
-
-export default App;

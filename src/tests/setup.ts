@@ -16,6 +16,13 @@ const products = (page: number = 1) =>
     image_front_url: '../assets/react.svg',
     brands: 'Brands for ' + (idx + 1 + (page - 1) * 24),
     categories: 'Categories for ' + (idx + 1 + (page - 1) * 24),
+    countries: 'USA,Ukraine,Israel,Kyrgyzstan',
+    nutriments: {
+      carbohydrates_100g: '100',
+      fat_100g: '100',
+      proteins_100g: '100',
+      'energy-kcal_100g': '100',
+    },
   }));
 
 vi.mock('../app/ApiClient.ts', () => {
@@ -28,11 +35,12 @@ vi.mock('../app/ApiClient.ts', () => {
         const search = (searchParams['search_terms'] as string) ?? '';
 
         if (search.startsWith('number_of_products-')) {
+          const numberOfProducts = Number(search.split('-')[1]);
           return {
-            products: products().slice(0, Number(search.split('-')[1])),
+            products: products().slice(0, numberOfProducts),
             page: 1,
-            page_count: Number(search.split('-')[1]),
-            count: Number(search.split('-')[1]),
+            page_count: Math.min(numberOfProducts, 24),
+            count: numberOfProducts,
             page_size: 24,
           };
         }
@@ -40,7 +48,7 @@ vi.mock('../app/ApiClient.ts', () => {
           products: products(page),
           page: page,
           page_count: 24,
-          count: 100,
+          count: 150,
           page_size: 24,
         };
       },

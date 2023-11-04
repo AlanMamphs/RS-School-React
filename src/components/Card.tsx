@@ -6,9 +6,7 @@ export const CardImage = (props: { image: string }) => (
   </div>
 );
 
-export const CardHeader = (
-  props: PropsWithChildren<{ header?: ReactNode }>
-) => (
+export const CardHeader = (props: PropsWithChildren<{ header?: string }>) => (
   <h3
     role="card-header"
     className="text-md h-8 whitespace-nowrap overflow-hidden text-ellipsis"
@@ -29,12 +27,14 @@ export const CardDescription = (
   </p>
 );
 
-export const Card = (props: {
-  header?: string;
-  image?: string;
-  description?: string;
-  active?: boolean;
-}) => (
+export const Card = (
+  props: PropsWithChildren<{
+    header?: string;
+    image?: string;
+    description?: string;
+    active?: boolean;
+  }>
+) => (
   <div
     role="card"
     className={`bg-white rounded-md shadow-2xl p-4 max-h-[40rem] h-full hover:bg-gray-100  dark:text-black center ${
@@ -44,6 +44,7 @@ export const Card = (props: {
     {props.image && <CardImage image={props.image} />}
     {props.header && <CardHeader header={props.header} />}
     {props.description && <CardDescription description={props.description} />}
+    {props.children}
   </div>
 );
 

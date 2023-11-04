@@ -10,6 +10,8 @@ export const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     searchTerm,
+    error,
+    loading,
     setSearchTerm,
     products,
     paginationData,
@@ -41,7 +43,11 @@ export const ProductsPage = () => {
       />
       <div className="flex gap-4">
         <div className="grow">
-          <ProductsContainer data={products ?? []} />
+          <ProductsContainer
+            data={products ?? []}
+            error={error}
+            loading={loading}
+          />
         </div>
         {selectedProduct && <Outlet />}
       </div>

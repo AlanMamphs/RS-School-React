@@ -11,7 +11,7 @@ class ApiClient {
       searchSimple: '1',
       action: 'process',
       json: '1',
-      page_size: '24',
+      page_size: '35',
       ...searchParams,
     });
   }
