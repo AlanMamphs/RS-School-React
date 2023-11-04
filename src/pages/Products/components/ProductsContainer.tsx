@@ -4,7 +4,7 @@ import { Product } from '../types';
 
 export const ProductsContainer = (props: {
   data: Product[];
-  loading: boolean;
+  loading?: boolean;
   error?: string | null;
 }) => {
   const { id } = useParams();

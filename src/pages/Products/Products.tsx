@@ -1,21 +1,22 @@
-import { ChangeEventHandler, useState } from 'react';
-import { LoaderFunction, useLoaderData, Outlet } from 'react-router-dom';
+import { ChangeEventHandler } from 'react';
+import { Outlet, useSearchParams } from 'react-router-dom';
 
 import { Search, Pagination } from '../../components';
-import ApiClient from '../../app/ApiClient';
 
 import { ProductsContainer } from './components';
-import { useData } from './hooks';
-import { SearchResults } from './types';
+import { useProductContext } from './context';
 
 export const ProductsPage = () => {
-  const onLoadData = useLoaderData() as SearchResults;
-  const [searchTerm, setSearchTerm] = useState(
-    localStorage.getItem('search-term') ?? ''
-  );
-  const { handleSearch, data, loading } = useData({
-    onLoadData,
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    searchTerm,
+    setSearchTerm,
+    products,
+    paginationData,
+    selectedProduct,
+    fetchProducts,
+    unselectProduct,
+  } = useProductContext();
 
   const handleSearchChange: ChangeEventHandler<HTMLInputElement> = (input) => {
     setSearchTerm(input.target.value);
@@ -27,27 +28,32 @@ export const ProductsPage = () => {
       <Search
         value={searchTerm}
         onChange={handleSearchChange}
-        onSearchClick={handleSearch}
+        onSearchClick={() => {
+          unselectProduct();
+          if (!searchParams.get('page') || searchParams.get('page') === '1') {
+            fetchProducts();
+          } else {
+            setSearchParams({
+              page: '1',
+            });
+          }
+        }}
       />
       <div className="flex gap-4">
         <div className="grow">
-          <ProductsContainer data={data?.products ?? []} loading={loading} />
+          <ProductsContainer data={products ?? []} />
         </div>
-        <Outlet />
+        {selectedProduct && <Outlet />}
       </div>
-      {data?.products && data.count > data.page_size && (
-        <Pagination totalPages={Math.floor(data.count / data.page_size)} />
-      )}
+      {products &&
+        paginationData &&
+        paginationData.count > paginationData.pageSize && (
+          <Pagination
+            totalPages={Math.floor(
+              paginationData.count / paginationData.pageSize
+            )}
+          />
+        )}
     </div>
   );
-};
-
-export const productsLoader: LoaderFunction = async ({ request }) => {
-  const searchTerm = localStorage.getItem('search-term');
-  const url = new URL(request.url);
-
-  return ApiClient.fetchProducts({
-    search_terms: searchTerm ?? '',
-    page: url.searchParams.get('page'),
-  });
 };

@@ -1,3 +1,5 @@
+import { Product, SearchResults } from '../pages/Products/types';
+
 class ApiClient {
   baseUrl: string;
   constructor(baseUrl: string) {
@@ -14,7 +16,9 @@ class ApiClient {
     });
   }
 
-  async fetchProducts(params: Record<string, string | null | undefined>) {
+  async fetchProducts(
+    params: Record<string, string | null | undefined>
+  ): Promise<SearchResults> {
     const filteredParams = Object.entries(params).reduce(
       (prev, [key, value]) => {
         if (value) {
@@ -31,7 +35,10 @@ class ApiClient {
     return data.json();
   }
 
-  async fetchProduct(barcode: string) {
+  async fetchProduct(barcode: string): Promise<{
+    code: string;
+    product: Product;
+  }> {
     const data = await fetch(`${this.baseUrl}/api/v2/product/${barcode}`);
     return data.json();
   }

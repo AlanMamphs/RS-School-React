@@ -5,16 +5,13 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 
-import { HomePage, ProductsPage, productsLoader, NotFoundPage } from './pages';
+import { HomePage, ProductsPage, NotFoundPage } from './pages';
 
 import './App.css';
 import { RootLayout } from './layouts';
-import {
-  ProductDetails,
-  productDetailsLoader,
-  ProductError,
-} from './pages/Products';
+import { ProductDetails, ProductError } from './pages/Products';
 import ErrorBoundary from './components/ErrorBoundary';
+import { ProductsProvider } from './pages/Products/context';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,15 +19,14 @@ const router = createBrowserRouter(
       <Route index element={<HomePage />} />
       <Route
         path="products"
-        element={<ProductsPage />}
-        loader={productsLoader}
+        element={
+          <ProductsProvider>
+            <ProductsPage />
+          </ProductsProvider>
+        }
         errorElement={<ProductError />}
       >
-        <Route
-          path=":id"
-          element={<ProductDetails />}
-          loader={productDetailsLoader}
-        />
+        <Route path=":id" element={<ProductDetails />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>
