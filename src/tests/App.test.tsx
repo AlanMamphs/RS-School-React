@@ -1,5 +1,5 @@
 import { it, expect, vi } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { App, router as Router } from '../App';
@@ -161,6 +161,22 @@ describe('App & Router tests', () => {
       'Some value and some more'
     );
   });
+  it('Verify that hitting Enter works as Search Button', async () => {
+    const { getByRole, user } = await setup();
+
+    expect(localStorage.getItem('search-term')).toBe(null);
+
+    await user.type(getByRole('search-input'), 'Some value');
+    expect(localStorage.getItem('search-term')).toBe(null);
+
+    fireEvent.keyDown(getByRole('search-input'), {
+      key: 'Enter',
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(localStorage.getItem('search-term')).toBe('Some value');
+    await user.type(getByRole('search-input'), ' and some more');
+  });
   it('Check that the component retrieves the value from the local storage upon mounting', async () => {
     localStorage.setItem('search-term', 'Some value');
     const fetchProductsSpy = vi.spyOn(ApiClient, 'fetchProducts');
@@ -174,7 +190,7 @@ describe('App & Router tests', () => {
   it('Ensure that the 404 page is displayed when navigating to an invalid route', async () => {
     const { getByText } = render(<App />);
     Router.navigate('/invalid/href');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     getByText("Page at '/invalid/href' is not found");
   });
 });
