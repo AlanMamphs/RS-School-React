@@ -1,8 +1,9 @@
 {
-  "name": "vite-project",
+  "name": "openfoodfacts",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "homepage": "https://alanmamphs.github.io/RS-School-React",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,9 +11,12 @@
     "preview": "vite preview",
     "prepare": "husky install",
     "format:fix": "prettier --ignore-path ./.prettierignore --write .",
-    "format:check": "prettier --ignore-path ./.prettierignore --check ."
+    "format:check": "prettier --ignore-path ./.prettierignore --check .",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "gh-pages": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0"
