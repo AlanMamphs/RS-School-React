@@ -35,7 +35,7 @@ describe('App & Router tests', () => {
 
     expect(
       getByRole('link', { name: 'Open Food Facts' }).getAttribute('href')
-    ).toBe('/');
+    ).toBe('#/');
   });
 
   it('Verify that the component renders the specified number of cards', async () => {

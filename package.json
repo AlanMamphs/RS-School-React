@@ -1,8 +1,9 @@
 {
-  "name": "vite-project",
+  "name": "openfoodfacts",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "homepage": "https://alanmamphs.github.io/RS-School-React",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -14,10 +15,13 @@
     "test:watch": "vitest",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:coverage:ui": "vitest --ui --coverage"
+    "test:coverage:ui": "vitest --ui --coverage",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@testing-library/user-event": "^14.5.1",
+    "gh-pages": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0"
@@ -41,6 +45,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "husky": "^8.0.0",
+    "jsdom": "^22.1.0",
     "lint-staged": "^15.0.2",
     "node-fetch": "^3.3.2",
     "postcss": "^8.4.31",

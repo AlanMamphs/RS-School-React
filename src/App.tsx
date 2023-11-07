@@ -1,6 +1,6 @@
 import {
   Route,
-  createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router-dom';
@@ -16,7 +16,7 @@ import {
 import { RootLayout } from './layouts';
 import { ErrorBoundary } from './components';
 
-export const router = createBrowserRouter(
+export const router = createHashRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />} ErrorBoundary={ErrorBoundary}>
       <Route index element={<HomePage />} />
