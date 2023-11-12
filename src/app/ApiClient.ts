@@ -1,5 +1,5 @@
 import { Product, SearchResults } from '../types';
-
+import { API_BASE_URL } from './configs';
 class ApiClient {
   baseUrl: string;
   constructor(baseUrl: string) {
@@ -44,4 +44,4 @@ class ApiClient {
   }
 }
 
-export default new ApiClient('https://world.openfoodfacts.org');
+export default new ApiClient(API_BASE_URL);

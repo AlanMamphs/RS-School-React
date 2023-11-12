@@ -1,4 +1,4 @@
-import { it } from 'vitest';
+import { it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 
 import { Card } from '../../components';

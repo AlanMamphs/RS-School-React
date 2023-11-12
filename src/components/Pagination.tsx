@@ -1,6 +1,12 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-export const Pagination = ({ totalPages }: { totalPages: number }) => {
+export const Pagination = ({
+  totalPages,
+  pageSize,
+}: {
+  totalPages: number;
+  pageSize: number;
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -44,9 +50,19 @@ export const Pagination = ({ totalPages }: { totalPages: number }) => {
           return params;
         });
       } else {
-        navigate(`/products?page=${page}`);
+        const params = searchParams;
+        params.set('page', page.toString());
+        navigate(`/products?${params.toString()}`);
       }
     }
+  };
+
+  const handlePageSizeChange = (pageSizeCount: string) => {
+    setSearchParams((params) => {
+      params.set('page_size', pageSizeCount);
+      params.set('page', '1');
+      return params;
+    });
   };
 
   const visiblePageNumbers = getVisiblePages();
@@ -106,6 +122,22 @@ export const Pagination = ({ totalPages }: { totalPages: number }) => {
           </button>
         </li>
       </ul>
+      <select
+        role="page_size"
+        value={pageSize}
+        onChange={(e) => handlePageSizeChange(e.target.value)}
+        className="mx-4 text-center inline-block py-2.5 px-0 text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+      >
+        <option role="page_size_value" value="14">
+          14 / page
+        </option>
+        <option role="page_size_value" value="28">
+          28 / page
+        </option>
+        <option role="page_size_value" value="35">
+          35 / page
+        </option>
+      </select>
     </div>
   );
 };

@@ -10,14 +10,11 @@ export const ProductDetails = () => {
   const isLoading = navigation.state === 'loading';
   const navigator = useNavigate();
   const [searchParams] = useSearchParams();
-  if ((isLoading && selectedProduct) || !selectedProduct) {
-    return;
-  }
 
   return (
     <FlexContainer
       role="product-details"
-      header={selectedProduct.product_name}
+      header={selectedProduct?.product_name}
       onClose={() => navigator(`/products?${searchParams.toString()}`)}
     >
       {isLoading && !selectedProduct && 'Loading...'}

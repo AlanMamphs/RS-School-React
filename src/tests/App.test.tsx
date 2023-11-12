@@ -1,4 +1,4 @@
-import { it, expect, vi } from 'vitest';
+import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -128,10 +128,7 @@ describe('App & Router tests', () => {
     const { getByText, queryAllByRole, queryAllByText, getByRole, user } =
       await setup();
 
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: null,
-      search_terms: '',
-    });
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({});
 
     expect(queryAllByRole('card').length).toBe(24);
 
@@ -142,7 +139,6 @@ describe('App & Router tests', () => {
 
     expect(fetchProductsSpy).toHaveBeenLastCalledWith({
       page: '2',
-      search_terms: '',
     });
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
@@ -152,7 +148,6 @@ describe('App & Router tests', () => {
 
     expect(fetchProductsSpy).toHaveBeenLastCalledWith({
       page: '1',
-      search_terms: '',
     });
 
     expect(queryAllByText('Product 1')).toHaveLength(1);
@@ -161,7 +156,6 @@ describe('App & Router tests', () => {
 
     expect(fetchProductsSpy).toHaveBeenLastCalledWith({
       page: '3',
-      search_terms: '',
     });
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
@@ -172,7 +166,6 @@ describe('App & Router tests', () => {
     await user.click(within(getByRole('pagination')).getByText('Next'));
     expect(fetchProductsSpy).toHaveBeenLastCalledWith({
       page: '4',
-      search_terms: '',
     });
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
@@ -186,7 +179,6 @@ describe('App & Router tests', () => {
     await user.click(within(getByRole('pagination')).getByText('Next'));
     expect(fetchProductsSpy).toHaveBeenLastCalledWith({
       page: '5',
-      search_terms: '',
     });
 
     await user.type(getByRole('search-input'), 'number-of-products-80');
@@ -202,6 +194,52 @@ describe('App & Router tests', () => {
       search_terms: 'number-of-products-80',
     });
   });
+
+  it('Ensure that the page size changes renders the page correctly', async () => {
+    const fetchProductsSpy = vi.spyOn(ApiClient, 'fetchProducts');
+
+    const { queryAllByRole, getAllByRole, getByRole, user } = await setup();
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({});
+
+    expect(queryAllByRole('card').length).toBe(24);
+
+    const options = getAllByRole('page_size_value') as HTMLOptionElement[];
+    act(() => {
+      fireEvent.change(getByRole('page_size'), {
+        target: { value: options[0].value },
+      });
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '1',
+      page_size: options[0].value,
+    });
+
+    expect(queryAllByRole('card').length).toBe(Number(options[0].value));
+
+    await user.click(within(getByRole('pagination')).getByText('2'));
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '2',
+      page_size: options[0].value,
+    });
+
+    act(() => {
+      fireEvent.change(getByRole('page_size'), {
+        target: { value: options[1].value },
+      });
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(queryAllByRole('card').length).toBe(Number(options[1].value));
+
+    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
+      page: '1',
+      page_size: options[1].value,
+    });
+  });
+
   it('Verify that clicking the Search button saves the entered value to the local storage', async () => {
     const { getByRole, user } = await setup();
 
@@ -244,7 +282,6 @@ describe('App & Router tests', () => {
     expect(fetchProductsSpy.mock.calls.length).toBe(0);
     await setup();
     expect(fetchProductsSpy).toHaveBeenCalledWith({
-      page: null,
       search_terms: 'Some value',
     });
   });

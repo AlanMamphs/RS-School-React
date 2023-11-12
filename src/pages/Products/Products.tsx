@@ -7,7 +7,7 @@ import { ProductsContainer } from './components';
 import { useProductContext } from './context';
 
 export const ProductsPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const {
     searchTerm,
     error,
@@ -16,7 +16,6 @@ export const ProductsPage = () => {
     products,
     paginationData,
     selectedProduct,
-    fetchProducts,
     unselectProduct,
   } = useProductContext();
 
@@ -32,13 +31,11 @@ export const ProductsPage = () => {
         onSearchClick={() => {
           localStorage.setItem('search-term', searchTerm);
           unselectProduct();
-          if (!searchParams.get('page') || searchParams.get('page') === '1') {
-            fetchProducts();
-          } else {
-            setSearchParams({
-              page: '1',
-            });
-          }
+          setSearchParams((params) => {
+            params.set('search_terms', searchTerm);
+            params.set('page', '1');
+            return params;
+          });
         }}
       />
       <div className="flex gap-4">
@@ -58,6 +55,7 @@ export const ProductsPage = () => {
             totalPages={Math.floor(
               paginationData.count / paginationData.pageSize
             )}
+            pageSize={paginationData.pageSize}
           />
         )}
     </div>

@@ -45,9 +45,9 @@ export const ProductsContext = createContext<ProductsContext>({
 
 export const ProductsProvider = (props: PropsWithChildren<object>) => {
   const { id } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -68,12 +68,13 @@ export const ProductsProvider = (props: PropsWithChildren<object>) => {
 
   const handleFetchProducts = useCallback(async () => {
     setLoading(true);
-    const key = `${searchTerm}-${searchParams.get('page')}`;
+    const key = `${searchTerm}-${searchParams.get('page')}-${searchParams.get(
+      'page_size'
+    )}`;
     const cache = productsCache.current.productsFetchCache;
     const fetch = async () => {
       const data = await ApiClient.fetchProducts({
-        search_terms: searchTerm,
-        page: searchParams.get('page'),
+        ...Object.fromEntries(searchParams),
       });
       cache.set(key, data);
       return data;
@@ -104,20 +105,31 @@ export const ProductsProvider = (props: PropsWithChildren<object>) => {
   }, [id]);
 
   useEffect(() => {
-    setSelectedProduct(null);
-    setProducts([]);
-    try {
-      Promise.all([handleFetchProducts(), handleFetchProduct()])
-        .then(() => setLoading(false))
-        .catch((e) => {
-          setError(e);
-          setLoading(false);
-        });
-    } catch (e) {
-      setError(e as Error);
-    } finally {
-      setLoading(false);
-    }
+    const loadData = async () => {
+      setSelectedProduct(null);
+      setProducts([]);
+      setLoading(true);
+      try {
+        if (searchTerm && !searchParams.get('search_terms')) {
+          setSearchParams((params) => {
+            params.set('search_terms', searchTerm);
+            return params;
+          });
+        } else {
+          await Promise.all([handleFetchProducts(), handleFetchProduct()])
+            .then(() => setLoading(false))
+            .catch((e) => {
+              setError(e);
+              setLoading(false);
+            });
+        }
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, id]);
 
