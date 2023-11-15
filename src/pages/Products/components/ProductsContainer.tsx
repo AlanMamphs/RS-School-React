@@ -1,11 +1,12 @@
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { Card, GridContainer } from '../../../components';
 import { Product } from '../../../types';
+import { SerializedError } from '@reduxjs/toolkit';
 
 export const ProductsContainer = (props: {
   data: Product[];
   loading?: boolean;
-  error?: Error | null;
+  error?: SerializedError;
 }) => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();

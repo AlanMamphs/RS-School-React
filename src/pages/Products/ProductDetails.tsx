@@ -1,27 +1,33 @@
-import { useNavigation, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useNavigate,
+  useSearchParams,
+  useParams,
+  useNavigation,
+} from 'react-router-dom';
+
 import { FlexContainer } from '../../components';
+import { useFetchProductQuery } from '../../services/products';
 
 import { ProductTable } from './components';
-import { useProductContext } from './context';
 
 export const ProductDetails = () => {
-  const { selectedProduct } = useProductContext();
-  const navigation = useNavigation();
-  const isLoading = navigation.state === 'loading';
+  const { id } = useParams();
+  const { data, isLoading } = useFetchProductQuery(id as string);
+
   const navigator = useNavigate();
+  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
+  const loading = isLoading || navigation.state === 'loading';
 
   return (
     <FlexContainer
       role="product-details"
-      header={selectedProduct?.product_name}
+      header={data?.product?.product_name}
       onClose={() => navigator(`/products?${searchParams.toString()}`)}
     >
-      {isLoading && !selectedProduct && 'Loading...'}
-      {!isLoading && !selectedProduct && 'Data is not available'}
-      {!isLoading && selectedProduct && (
-        <ProductTable product={selectedProduct} />
-      )}
+      {loading && 'Loading...'}
+      {!loading && !data?.product && 'Data is not available'}
+      {!loading && data?.product && <ProductTable product={data.product} />}
     </FlexContainer>
   );
 };

@@ -5,7 +5,7 @@ export const HomePage = () => {
   return (
     <div className="dark:text-slate-200">
       <p>
-        This UI is utilizing{' '}
+        This UI is utilizing
         <a
           className="underline"
           href="https://openfoodfacts.github.io/openfoodfacts-server/api/"

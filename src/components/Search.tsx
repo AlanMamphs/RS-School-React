@@ -1,15 +1,17 @@
-import { InputHTMLAttributes, KeyboardEventHandler } from 'react';
+import { InputHTMLAttributes, KeyboardEventHandler, useState } from 'react';
 
 interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  onSearchClick: () => void;
+  onSearchClick: (value: string) => void;
+  initialValue: string;
 }
 
 export const Search = (props: Props) => {
-  const { onSearchClick, value, ...htmlInputProps } = props;
+  const { onSearchClick, initialValue, ...htmlInputProps } = props;
+  const [value, setValue] = useState<string>(initialValue);
 
-  const handleKeyPress: KeyboardEventHandler = (e) => {
+  const handleKeyPress: KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === 'Enter') {
-      props.onSearchClick();
+      props.onSearchClick(value);
     }
   };
 
@@ -44,6 +46,7 @@ export const Search = (props: Props) => {
           role="search-input"
           id="default-search"
           value={value}
+          onChange={(e) => setValue(e.target.value)}
           {...htmlInputProps}
           className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Search For Product..."
@@ -53,7 +56,7 @@ export const Search = (props: Props) => {
         <button
           disabled={!value}
           role="search-button"
-          onClick={onSearchClick}
+          onClick={() => onSearchClick(value)}
           className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Search
