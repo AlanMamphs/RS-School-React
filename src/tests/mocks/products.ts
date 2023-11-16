@@ -1,4 +1,3 @@
-import 'whatwg-fetch';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { API_BASE_URL } from '../../app/configs';

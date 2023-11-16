@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import { App, router as Router } from '../App';
 
 import { within, act } from '@testing-library/react';
-import 'isomorphic-fetch';
 import { server } from './mocks/products';
 import { renderWithProviders } from './utils';
 
