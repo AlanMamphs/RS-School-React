@@ -45,3 +45,6 @@ export const useSearchTermSelector = () =>
 
 export const usePageSizeSelector = () =>
   useSelector((state: RootState) => state.products.pageSize);
+
+export const useViewModeSelector = () =>
+  useSelector((state: RootState) => state.products.viewMode);

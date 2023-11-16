@@ -1,27 +1,14 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { render, waitFor, fireEvent, cleanup } from '@testing-library/react';
+import { waitFor, fireEvent, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { App, router as Router } from '../App';
 
 import { within, act } from '@testing-library/react';
-import { Provider } from 'react-redux';
 import 'isomorphic-fetch';
 import { server } from './mocks/products';
-import { PropsWithChildren } from 'react';
-import { createStore } from '../app/store';
+import { renderWithProviders } from './utils';
 
-export function renderWithProviders(
-  ui: React.ReactElement,
-  { store = createStore() } = {}
-) {
-  function Wrapper({ children }: PropsWithChildren): JSX.Element {
-    return <Provider store={store}>{children}</Provider>;
-  }
-
-  // Return an object with the store and all of RTL's query functions
-  return { store, ...render(ui, { wrapper: Wrapper }) };
-}
 const setup = async () => {
   server.resetHandlers();
   const screen = renderWithProviders(<App />);

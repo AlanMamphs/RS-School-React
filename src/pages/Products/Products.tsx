@@ -1,4 +1,9 @@
-import { Outlet, useNavigation, useSearchParams } from 'react-router-dom';
+import {
+  Outlet,
+  useNavigate,
+  useNavigation,
+  useSearchParams,
+} from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import { Search, Pagination } from '../../components';
@@ -7,10 +12,8 @@ import { useFetchProductsQuery } from '../../services/products';
 import { ProductsContainer } from './components';
 
 import {
-  setViewMode,
   setSearchTerm,
   useSearchTermSelector,
-  ViewMode,
   setPageSize,
   usePageSizeSelector,
 } from './redux/productsSlice';
@@ -21,6 +24,7 @@ export const ProductsPage = () => {
   const searchTerms = useSearchTermSelector();
   const pageSize = usePageSizeSelector();
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { data, error, isLoading, isFetching } = useFetchProductsQuery({
@@ -31,9 +35,9 @@ export const ProductsPage = () => {
 
   const handleSearchClick = (value: string) => {
     localStorage.setItem('search-term', value);
-    dispatch(setViewMode(ViewMode.products));
     dispatch(setSearchTerm(value));
 
+    navigate('/products');
     setSearchParams((params) => {
       params.set('page', '1');
       return params;
@@ -54,7 +58,6 @@ export const ProductsPage = () => {
         initialValue={localStorage.getItem('search-term') ?? ''}
         onSearchClick={handleSearchClick}
       />
-      <>{JSON.stringify(data)}</>
       <div className="flex gap-4">
         <div className="grow">
           <ProductsContainer
