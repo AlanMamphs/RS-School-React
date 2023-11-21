@@ -1,16 +1,12 @@
-import { Component, ErrorInfo, ReactNode } from "react";
-
-interface Props {
-  children?: ReactNode;
-}
+import { Component, ErrorInfo, PropsWithChildren } from 'react';
 
 interface State {
   hasError: boolean;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<PropsWithChildren, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,7 +16,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error('Uncaught error:', error, errorInfo);
   }
 
   public render() {
@@ -31,5 +27,3 @@ class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;
