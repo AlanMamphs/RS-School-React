@@ -74,11 +74,9 @@ describe('App & Router tests', () => {
     within(card.getByRole('card-description')).getByText(/Brands for 1/);
   });
   it('Check that clicking on a card opens a detailed card component', async () => {
-    const { queryAllByRole, getByRole, user, debug } = await setup();
+    const { queryAllByRole, getByRole, user } = await setup();
     expect(queryAllByRole('card').length).toBe(35);
     expect(queryAllByRole('table').length).toBe(0);
-
-    debug();
 
     act(() => {
       user.click(queryAllByRole('card')[0]);
@@ -138,14 +136,8 @@ describe('App & Router tests', () => {
   });
 
   it('Ensure that the pagination component correctly displays the pagination data', async () => {
-    const {
-      queryAllByRole,
-      getAllByRole,
-      queryAllByText,
-      getByRole,
-      user,
-      debug,
-    } = await setup();
+    const { queryAllByRole, getAllByRole, queryAllByText, getByRole, user } =
+      await setup();
 
     const requestUrls: URL[] = [];
     server.events.on('request:start', (request) => {
@@ -159,7 +151,6 @@ describe('App & Router tests', () => {
     expect(queryAllByText('Product 36')).toHaveLength(0);
 
     await user.click(within(getByRole('pagination')).getByText(2));
-    debug();
 
     expect(requestUrls.length).toBe(1);
     expect(requestUrls[0].searchParams.get('page')).toBe('2');
@@ -250,7 +241,6 @@ describe('App & Router tests', () => {
     });
     expect(requestUrls.length).toBe(0);
     await setup();
-    console.log(requestUrls);
     expect(requestUrls.length).toBeGreaterThan(1);
     expect(requestUrls[1].searchParams.get('search_terms')).toBe('Some value');
   });
