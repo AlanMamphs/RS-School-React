@@ -3,29 +3,45 @@ import { useFetchProductQuery } from '@/lib/productsApi';
 import {
   ViewMode,
   setViewMode,
+  useSelectedProductSelector,
   useViewModeSelector,
+  setSelectedProduct,
 } from '@/lib/productsSlice';
 
 import { useParams, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 
 import { ProductTable } from './ProductData';
+import { useEffect } from 'react';
+import { useAppDispatch } from '@/lib/hooks';
 
 export const ProductDetails = () => {
+  const { id } = useParams() ?? {};
   const router = useRouter();
-  const params = useParams();
+  const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
-  const { id } = params ?? {};
-  const { data, isLoading } = useFetchProductQuery(id as string);
+  const selectedProduct = useSelectedProductSelector();
+  const { data, isLoading, isFetching } = useFetchProductQuery(
+    selectedProduct as string
+  );
 
-  const viewMode = useViewModeSelector();
+  useEffect(() => {
+    dispatch(setViewMode(ViewMode.productDetails));
+    dispatch(setSelectedProduct(id as string));
+  }, [id]);
 
-  if (viewMode === ViewMode.products) {
+  if (!selectedProduct) {
     return null;
   }
+
+  if (isLoading || isFetching) {
+    return <div className="sticky top-0 h-full flex-1">Loading...</div>;
+  }
+
   const handleOnClose = () => {
     router.push(`/products?page=${searchParams.get('page') ?? '1'}`);
-    setViewMode(ViewMode.products);
+    dispatch(setViewMode(ViewMode.products));
+    dispatch(setSelectedProduct(null));
   };
 
   return (
@@ -35,9 +51,8 @@ export const ProductDetails = () => {
         header={data?.product?.product_name}
         onClose={handleOnClose}
       >
-        {isLoading && 'Loading...'}
-        {!isLoading && !data?.product && 'Data is not available'}
-        {!isLoading && data?.product && <ProductTable product={data.product} />}
+        {!data?.product && 'Data is not available'}
+        {data?.product && <ProductTable product={data.product} />}
       </FlexContainer>
     </div>
   );

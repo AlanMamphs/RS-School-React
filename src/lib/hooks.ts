@@ -7,25 +7,25 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 import { useState } from 'react';
 
-export const useLocalStorage = (key: string, initialValue: string) => {
-  const [state, setState] = useState(() => {
-    // Initialize the state
+export const useLocalStorage = (
+  key: string,
+  initialValue: string
+): [string, (value: string) => void] => {
+  const [state, setState] = useState<string>(() => {
     try {
       const value = window.localStorage.getItem(key);
       // Check if the local storage already has any values,
       // otherwise initialize it with the passed initialValue
-      return value ? JSON.parse(value) : initialValue;
-    } catch (error) {
-      console.log(error);
+      return value ? value : initialValue;
+    } catch (err) {
+      console.log(err);
+      return '';
     }
   });
 
-  const setValue = (value: string | Function) => {
+  const setValue = (value: string) => {
     try {
-      // If the passed value is a callback function,
-      //  then call it with the existing state.
-      const valueToStore = value instanceof Function ? value(state) : value;
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      window.localStorage.setItem(key, value);
       setState(value);
     } catch (error) {
       console.log(error);

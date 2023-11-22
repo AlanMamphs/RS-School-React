@@ -8,25 +8,27 @@ import {
   usePageSizeSelector,
   setSearchTerm,
   setPageSize,
+  setPage,
+  useSelectedProductSelector,
+  usePageSelector,
 } from '@/lib/productsSlice';
 
 import { useAppDispatch, useLocalStorage } from '@/lib/hooks';
 import { SerializedError } from '@reduxjs/toolkit';
 
-import { useSearchParams, useParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 
 export const ProductsLayout = (props: PropsWithChildren) => {
-  const { id } = useParams() ?? {};
   const [lSSearchTerm, setLSSearchTerm] = useLocalStorage('search-term', '');
 
   useEffect(() => {
-    dispatch(setSearchTerm(lSSearchTerm));
+    dispatch(setSearchTerm(lSSearchTerm as string));
   }, []);
 
-  const searchParams = useSearchParams();
   const searchTerms = useSearchTermSelector();
   const pageSize = usePageSizeSelector();
+  const selectedProduct = useSelectedProductSelector();
+  const page = usePageSelector();
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -34,7 +36,7 @@ export const ProductsLayout = (props: PropsWithChildren) => {
   const { data, error, isLoading, isFetching } = useFetchProductsQuery({
     searchTerms: searchTerms || lSSearchTerm,
     pageSize,
-    page: Number(searchParams.get('page') ?? '1'),
+    page,
   });
 
   const handleSearchClick = (value: string) => {
@@ -45,16 +47,17 @@ export const ProductsLayout = (props: PropsWithChildren) => {
 
   const handlePageSizeChange = (pageSize: number) => {
     dispatch(setPageSize(pageSize));
+    dispatch(setPage(1));
+
     router.query.page = '1';
     router.push(router);
   };
 
-  const handlePageChange = (page: number) => {
-    if (!id) {
-      router.query.page = page.toString();
-      router.push(router);
-    } else {
-      router.push(`/products?page=${page.toString()}`);
+  const handlePageChange = (pageNumber: number) => {
+    dispatch(setPage(pageNumber));
+
+    if (selectedProduct) {
+      router.push(`/products`);
     }
   };
 
@@ -74,7 +77,7 @@ export const ProductsLayout = (props: PropsWithChildren) => {
       {data?.products && data.count >= pageSize && (
         <Pagination
           onPageChange={handlePageChange}
-          currentPage={Number(searchParams.get('page') ?? '1')}
+          currentPage={page}
           onPageSizeChange={handlePageSizeChange}
           totalPages={Math.floor(data.count / pageSize)}
           pageSize={pageSize}

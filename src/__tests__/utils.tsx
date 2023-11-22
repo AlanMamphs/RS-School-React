@@ -1,6 +1,6 @@
 import { Provider } from 'react-redux';
 import { PropsWithChildren } from 'react';
-import { createStore } from '../app/store';
+import { createStore } from '../lib/store';
 import { render } from '@testing-library/react';
 
 export function renderWithProviders(
