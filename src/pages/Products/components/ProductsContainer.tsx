@@ -1,14 +1,24 @@
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { Card, GridContainer } from '../../../components';
 import { Product } from '../../../types';
+import { SerializedError } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
+import { ViewMode, setViewMode } from '../redux/productsSlice';
+import { useEffect } from 'react';
 
 export const ProductsContainer = (props: {
   data: Product[];
   loading?: boolean;
-  error?: Error | null;
+  error?: SerializedError;
 }) => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setViewMode(id ? ViewMode.productDetails : ViewMode.products));
+  }, [id, dispatch]);
+
   if (props.loading) {
     return <div className="text-gray-900 dark:text-white m-12">Loading...</div>;
   }

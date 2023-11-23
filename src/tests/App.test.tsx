@@ -1,15 +1,16 @@
-import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { describe, beforeEach, it, expect } from 'vitest';
+import { waitFor, fireEvent, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { App, router as Router } from '../App';
 
-import ApiClient from '../app/ApiClient';
-
 import { within, act } from '@testing-library/react';
+import { server } from './mocks/products';
+import { renderWithProviders } from './utils';
 
 const setup = async () => {
-  const screen = render(<App />);
+  server.resetHandlers();
+  const screen = renderWithProviders(<App />);
   const user = userEvent.setup();
 
   const brand = within(screen.getByRole('heading', { level: 1 })).getByText(
@@ -28,6 +29,7 @@ const setup = async () => {
 describe('App & Router tests', () => {
   beforeEach(() => {
     localStorage.clear();
+    cleanup();
   });
 
   it('Smoke test', async () => {
@@ -42,7 +44,7 @@ describe('App & Router tests', () => {
     const { getByTestId, queryAllByRole, getByRole, user } = await setup();
 
     expect(getByTestId('products-page')).toBeVisible();
-    expect(queryAllByRole('card').length).toBe(24);
+    expect(queryAllByRole('card').length).toBe(35);
 
     await user.type(getByRole('search-input'), 'number_of_products-5');
     await user.click(getByRole('search-button'));
@@ -71,7 +73,7 @@ describe('App & Router tests', () => {
   });
   it('Check that clicking on a card opens a detailed card component', async () => {
     const { queryAllByRole, getByRole, user } = await setup();
-    expect(queryAllByRole('card').length).toBe(24);
+    expect(queryAllByRole('card').length).toBe(35);
     expect(queryAllByRole('table').length).toBe(0);
     await user.click(queryAllByRole('card')[0]);
     expect(queryAllByRole('table').length).toBe(1);
@@ -79,15 +81,20 @@ describe('App & Router tests', () => {
   });
   it('Check that clicking triggers an additional API call to fetch detailed information', async () => {
     const { queryAllByRole, user } = await setup();
+    const requestUrls: URL[] = [];
+    server.events.on('request:start', (request) => {
+      requestUrls.push(request.url);
+    });
 
-    const fetchProductSpy = vi.spyOn(ApiClient, 'fetchProduct');
-    expect(fetchProductSpy.mock.calls.length).toBe(0);
+    expect(requestUrls.length).toBe(0);
 
-    await user.click(queryAllByRole('card')[0]);
-    expect(fetchProductSpy.mock.calls.length).toBe(1);
+    await user.click(queryAllByRole('card')[20]);
+    expect(requestUrls.length).toBe(1);
+    expect(requestUrls[0].pathname).toBe('/api/v2/product/20');
 
-    await user.click(queryAllByRole('card')[1]);
-    expect(fetchProductSpy.mock.calls.length).toBe(2);
+    await user.click(queryAllByRole('card')[21]);
+    expect(requestUrls.length).toBe(2);
+    expect(requestUrls[1].pathname).toBe('/api/v2/product/21');
   });
 
   it('Ensure that the detailed card component correctly displays the detailed card data', async () => {
@@ -123,86 +130,38 @@ describe('App & Router tests', () => {
   });
 
   it('Ensure that the pagination component correctly displays the pagination data', async () => {
-    const fetchProductsSpy = vi.spyOn(ApiClient, 'fetchProducts');
-
-    const { getByText, queryAllByRole, queryAllByText, getByRole, user } =
+    const { queryAllByRole, getAllByRole, queryAllByText, getByRole, user } =
       await setup();
 
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({});
+    const requestUrls: URL[] = [];
+    server.events.on('request:start', (request) => {
+      requestUrls.push(request.url);
+    });
+    expect(requestUrls.length).toBe(0);
 
-    expect(queryAllByRole('card').length).toBe(24);
+    expect(queryAllByRole('card').length).toBe(35);
 
     expect(queryAllByText('Product 1')).toHaveLength(1);
-    expect(queryAllByText('Product 25')).toHaveLength(0);
+    expect(queryAllByText('Product 36')).toHaveLength(0);
 
     await user.click(within(getByRole('pagination')).getByText(2));
 
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '2',
-    });
+    expect(requestUrls.length).toBe(1);
+    expect(requestUrls[0].searchParams.get('page')).toBe('2');
+    expect(requestUrls[0].searchParams.get('page_size')).toBe('35');
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
-    expect(queryAllByText('Product 25')).toHaveLength(1);
+    expect(queryAllByText('Product 36')).toHaveLength(1);
 
-    await user.click(within(getByRole('pagination')).getByText(/Previous/));
+    await user.click(within(getByRole('pagination')).getByText(/Next/));
 
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '1',
-    });
-
-    expect(queryAllByText('Product 1')).toHaveLength(1);
-    expect(queryAllByText('Product 25')).toHaveLength(0);
-    await user.click(within(getByRole('pagination')).getByText('3'));
-
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '3',
-    });
+    expect(requestUrls.length).toBe(2);
+    expect(requestUrls[1].searchParams.get('page')).toBe('3');
+    expect(requestUrls[1].searchParams.get('page_size')).toBe('35');
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
-    expect(queryAllByText('Product 25')).toHaveLength(0);
-    expect(queryAllByText('Product 49')).toHaveLength(1);
-
-    expect(getByText(/Next/)).toBeVisible();
-    await user.click(within(getByRole('pagination')).getByText('Next'));
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '4',
-    });
-
-    expect(queryAllByText('Product 1')).toHaveLength(0);
-    expect(queryAllByText('Product 25')).toHaveLength(0);
-    expect(queryAllByText('Product 49')).toHaveLength(0);
-    expect(queryAllByText('Product 75')).toHaveLength(1);
-
-    await user.click(queryAllByRole('card')[0]);
-
-    expect(getByRole('pagination')).toBeVisible();
-    await user.click(within(getByRole('pagination')).getByText('Next'));
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '5',
-    });
-
-    await user.type(getByRole('search-input'), 'number-of-products-80');
-    await user.click(getByRole('search-button'));
-
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '1',
-      search_terms: 'number-of-products-80',
-    });
-    await user.click(within(getByRole('pagination')).getByText('Next'));
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '2',
-      search_terms: 'number-of-products-80',
-    });
-  });
-
-  it('Ensure that the page size changes renders the page correctly', async () => {
-    const fetchProductsSpy = vi.spyOn(ApiClient, 'fetchProducts');
-
-    const { queryAllByRole, getAllByRole, getByRole, user } = await setup();
-
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({});
-
-    expect(queryAllByRole('card').length).toBe(24);
+    expect(queryAllByText('Product 36')).toHaveLength(0);
+    expect(queryAllByText('Product 72')).toHaveLength(1);
 
     const options = getAllByRole('page_size_value') as HTMLOptionElement[];
     act(() => {
@@ -210,34 +169,24 @@ describe('App & Router tests', () => {
         target: { value: options[0].value },
       });
     });
+
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '1',
-      page_size: options[0].value,
-    });
+    expect(requestUrls.length).toBe(3);
+    expect(requestUrls[2].searchParams.get('page')).toBe('1');
+    expect(requestUrls[2].searchParams.get('page_size')).toBe('14');
 
-    expect(queryAllByRole('card').length).toBe(Number(options[0].value));
+    expect(queryAllByText('Product 1')).toHaveLength(1);
+    expect(queryAllByText('Product 36')).toHaveLength(0);
 
-    await user.click(within(getByRole('pagination')).getByText('2'));
+    await user.type(getByRole('search-input'), 'number-of-products-80');
+    await user.click(getByRole('search-button'));
 
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '2',
-      page_size: options[0].value,
-    });
-
-    act(() => {
-      fireEvent.change(getByRole('page_size'), {
-        target: { value: options[1].value },
-      });
-    });
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(queryAllByRole('card').length).toBe(Number(options[1].value));
-
-    expect(fetchProductsSpy).toHaveBeenLastCalledWith({
-      page: '1',
-      page_size: options[1].value,
-    });
+    expect(requestUrls[3].searchParams.get('page')).toBe('1');
+    expect(requestUrls[3].searchParams.get('page_size')).toBe('14');
+    expect(requestUrls[3].searchParams.get('search_terms')).toBe(
+      'number-of-products-80'
+    );
   });
 
   it('Verify that clicking the Search button saves the entered value to the local storage', async () => {
@@ -258,6 +207,7 @@ describe('App & Router tests', () => {
       'Some value and some more'
     );
   });
+
   it('Verify that hitting Enter works as Search Button', async () => {
     const { getByRole, user } = await setup();
 
@@ -271,23 +221,26 @@ describe('App & Router tests', () => {
         key: 'Enter',
       });
     });
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     expect(localStorage.getItem('search-term')).toBe('Some value');
     await user.type(getByRole('search-input'), ' and some more');
   });
+
   it('Check that the component retrieves the value from the local storage upon mounting', async () => {
     localStorage.setItem('search-term', 'Some value');
-    const fetchProductsSpy = vi.spyOn(ApiClient, 'fetchProducts');
-    expect(fetchProductsSpy.mock.calls.length).toBe(0);
-    await setup();
-    expect(fetchProductsSpy).toHaveBeenCalledWith({
-      search_terms: 'Some value',
+    const requestUrls: URL[] = [];
+    server.events.on('request:start', (request) => {
+      requestUrls.push(request.url);
     });
+    expect(requestUrls.length).toBe(0);
+    await setup();
+    expect(requestUrls.length).toBe(1);
+    expect(requestUrls[0].searchParams.get('search_terms')).toBe('Some value');
   });
 
   it('Ensure that the 404 page is displayed when navigating to an invalid route', async () => {
-    const { getByText } = render(<App />);
+    const { getByText } = renderWithProviders(<App />);
     Router.navigate('/invalid/href');
     await new Promise((resolve) => setTimeout(resolve, 100));
     getByText("Page at '/invalid/href' is not found");

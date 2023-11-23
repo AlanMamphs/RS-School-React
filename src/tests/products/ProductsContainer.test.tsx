@@ -1,10 +1,10 @@
 import { it } from 'vitest';
-import { render } from '@testing-library/react';
 import { HashRouter } from 'react-router-dom';
 import { ProductsContainer } from '../../pages/Products';
+import { renderWithProviders } from '../utils';
 
 it('Product container renders error message', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithProviders(
     <HashRouter>
       <ProductsContainer data={[]} error={new Error('Error occurred')} />
     </HashRouter>
@@ -14,7 +14,7 @@ it('Product container renders error message', () => {
 });
 
 it('Product container renders loader', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithProviders(
     <HashRouter>
       <ProductsContainer data={[]} loading />
     </HashRouter>

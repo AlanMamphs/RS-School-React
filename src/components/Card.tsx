@@ -37,8 +37,8 @@ export const Card = (
 ) => (
   <div
     role="card"
-    className={`bg-white rounded-md shadow-2xl p-4 max-h-[40rem] h-full hover:bg-gray-100  dark:text-black center ${
-      props.active ? 'border-4 border-indigo-500' : ''
+    className={`bg-white border-4 rounded-md shadow-2xl p-4 max-h-[40rem] h-full hover:bg-gray-100  dark:text-black center ${
+      props.active ? ' border-indigo-500' : ''
     }`}
   >
     {props.image && <CardImage image={props.image} />}

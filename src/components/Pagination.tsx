@@ -3,9 +3,11 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 export const Pagination = ({
   totalPages,
   pageSize,
+  onPageSizeChange,
 }: {
   totalPages: number;
   pageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -55,14 +57,6 @@ export const Pagination = ({
         navigate(`/products?${params.toString()}`);
       }
     }
-  };
-
-  const handlePageSizeChange = (pageSizeCount: string) => {
-    setSearchParams((params) => {
-      params.set('page_size', pageSizeCount);
-      params.set('page', '1');
-      return params;
-    });
   };
 
   const visiblePageNumbers = getVisiblePages();
@@ -125,7 +119,7 @@ export const Pagination = ({
       <select
         role="page_size"
         value={pageSize}
-        onChange={(e) => handlePageSizeChange(e.target.value)}
+        onChange={(e) => onPageSizeChange(Number(e.target.value))}
         className="mx-4 text-center inline-block py-2.5 px-0 text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
       >
         <option role="page_size_value" value="14">

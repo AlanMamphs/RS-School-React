@@ -1,3 +1,5 @@
+import { store } from './app/store';
+
 export interface Product {
   product_name: string;
   id: string;
@@ -21,3 +23,5 @@ export interface SearchResults {
   page_size: number;
   count: number;
 }
+
+export type RootState = ReturnType<typeof store.getState>;
