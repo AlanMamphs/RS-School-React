@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from './storeTypes';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from './hooks';
 
 export enum ViewMode {
   'products',
@@ -60,16 +59,16 @@ export const {
 
 export default productsSlice.reducer;
 export const useSearchTermSelector = () =>
-  useSelector((state: RootState) => state.products.searchTerm);
+  useAppSelector((state) => state.products.searchTerm);
 
 export const usePageSelector = () =>
-  useSelector((state: RootState) => state.products.page);
+  useAppSelector(({ products }) => products.page);
 
 export const usePageSizeSelector = () =>
-  useSelector((state: RootState) => state.products.pageSize);
+  useAppSelector(({ products }) => products.pageSize);
 
 export const useViewModeSelector = () =>
-  useSelector((state: RootState) => state.products.viewMode);
+  useAppSelector(({ products }) => products.viewMode);
 
 export const useSelectedProductSelector = () =>
-  useSelector((state: RootState) => state.products.selectedProduct);
+  useAppSelector(({ products }) => products.selectedProduct);
