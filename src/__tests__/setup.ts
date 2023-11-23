@@ -6,13 +6,6 @@ import { cleanup } from '@testing-library/react';
 import { server } from './mocks/products';
 
 vi.mock('next/router', () => require('next-router-mock'));
-vi.mock('next/navigation', () => {
-  return {
-    __esModule: true,
-    useParams: vi.fn(),
-    useSearchParams: () => new URLSearchParams({ page: '1' }),
-  };
-});
 
 beforeEach(async () => {
   localStorage.clear();

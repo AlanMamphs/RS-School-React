@@ -4,11 +4,9 @@ import {
   ViewMode,
   setViewMode,
   useSelectedProductSelector,
-  useViewModeSelector,
   setSelectedProduct,
 } from '@/lib/productsSlice';
 
-import { useParams, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 
 import { ProductTable } from './ProductData';
@@ -16,10 +14,9 @@ import { useEffect } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
 
 export const ProductDetails = () => {
-  const { id } = useParams() ?? {};
   const router = useRouter();
+  const { id, page } = router.query;
   const dispatch = useAppDispatch();
-  const searchParams = useSearchParams();
   const selectedProduct = useSelectedProductSelector();
   const { data, isLoading, isFetching } = useFetchProductQuery(
     selectedProduct as string
@@ -39,7 +36,7 @@ export const ProductDetails = () => {
   }
 
   const handleOnClose = () => {
-    router.push(`/products?page=${searchParams.get('page') ?? '1'}`);
+    router.push(`/products?page=${page ?? 1}`);
     dispatch(setViewMode(ViewMode.products));
     dispatch(setSelectedProduct(null));
   };

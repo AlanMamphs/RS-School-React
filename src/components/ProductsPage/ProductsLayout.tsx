@@ -1,4 +1,7 @@
 import { PropsWithChildren, useEffect } from 'react';
+import { SerializedError } from '@reduxjs/toolkit';
+import { useRouter } from 'next/router';
+
 import { Search, Pagination } from '@/components';
 import { ProductsContainer } from '@/components/ProductsPage';
 
@@ -14,9 +17,6 @@ import {
 } from '@/lib/productsSlice';
 
 import { useAppDispatch, useLocalStorage } from '@/lib/hooks';
-import { SerializedError } from '@reduxjs/toolkit';
-
-import { useRouter } from 'next/router';
 
 export const ProductsLayout = (props: PropsWithChildren) => {
   const [lSSearchTerm, setLSSearchTerm] = useLocalStorage('search-term', '');
@@ -39,26 +39,34 @@ export const ProductsLayout = (props: PropsWithChildren) => {
     page,
   });
 
+  const resetRouter = () => {
+    dispatch(setPage(1));
+    if (selectedProduct) {
+      router.pathname = '/products';
+    }
+    router.query.page = '1';
+    router.push(router);
+  };
   const handleSearchClick = (value: string) => {
     setLSSearchTerm(value);
     dispatch(setSearchTerm(value));
-    router.push(`/products?page=1`);
+    resetRouter();
   };
 
   const handlePageSizeChange = (pageSize: number) => {
     dispatch(setPageSize(pageSize));
-    dispatch(setPage(1));
-
-    router.query.page = '1';
-    router.push(router);
+    resetRouter();
   };
 
   const handlePageChange = (pageNumber: number) => {
     dispatch(setPage(pageNumber));
+    router.query.page = pageNumber.toString();
 
     if (selectedProduct) {
-      router.push(`/products`);
+      router.pathname = '/products';
     }
+
+    router.push(router);
   };
 
   return (

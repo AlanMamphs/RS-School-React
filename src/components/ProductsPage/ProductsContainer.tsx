@@ -1,21 +1,19 @@
-import { useEffect } from 'react';
-import { Card, GridContainer } from '..';
-import { Product } from './types';
 import { SerializedError } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
+import Link from 'next/link';
+
 import {
   setSelectedProduct,
   useSelectedProductSelector,
 } from '@/lib/productsSlice';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { Product } from './types';
+import { Card, GridContainer } from '..';
 
 export const ProductsContainer = (props: {
   data: Product[];
   loading?: boolean;
   error?: SerializedError;
 }) => {
-  const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const selectedProduct = useSelectedProductSelector();
 
@@ -28,9 +26,9 @@ export const ProductsContainer = (props: {
   }
 
   const getNextUrl = (productId: string) => {
-    return `${
-      productId === selectedProduct ? `/products` : `/products/${productId}`
-    }?${searchParams.toString()}`;
+    return productId === selectedProduct
+      ? `/products`
+      : `/products/${productId}`;
   };
 
   const handleCardSelected = (id: string) => {
