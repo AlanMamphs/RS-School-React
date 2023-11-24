@@ -7,27 +7,29 @@ export enum ViewMode {
 }
 
 type State = {
-  searchTerm: string;
+  searchTerms: string;
   pageSize: number;
   page: number;
-  viewMode: ViewMode;
+  viewMode: ViewMode | null;
   selectedProduct: null | string;
+  isProductListLoading: boolean;
 };
 
 const initialState: State = {
-  searchTerm: '',
+  searchTerms: '',
   pageSize: 35,
   page: 1,
   selectedProduct: null,
-  viewMode: ViewMode.products,
+  viewMode: null,
+  isProductListLoading: false,
 };
 
 export const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    setSearchTerm: (state, action: PayloadAction<State['searchTerm']>) => {
-      state.searchTerm = action.payload;
+    setSearchTerm: (state, action: PayloadAction<State['searchTerms']>) => {
+      state.searchTerms = action.payload;
     },
     setPageSize: (state, action: PayloadAction<State['pageSize']>) => {
       state.pageSize = action.payload;
@@ -46,6 +48,12 @@ export const productsSlice = createSlice({
     ) => {
       state.selectedProduct = action.payload;
     },
+    setProductListLoading: (
+      state,
+      action: PayloadAction<State['isProductListLoading']>
+    ) => {
+      state.isProductListLoading = action.payload;
+    },
   },
 });
 
@@ -55,11 +63,12 @@ export const {
   setSearchTerm,
   setViewMode,
   setSelectedProduct,
+  setProductListLoading,
 } = productsSlice.actions;
 
 export default productsSlice.reducer;
 export const useSearchTermSelector = () =>
-  useAppSelector((state) => state.products.searchTerm);
+  useAppSelector((state) => state.products.searchTerms);
 
 export const usePageSelector = () =>
   useAppSelector(({ products }) => products.page);

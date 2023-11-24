@@ -1,21 +1,21 @@
 import { SerializedError } from '@reduxjs/toolkit';
-import { useDispatch } from 'react-redux';
-import Link from 'next/link';
 
-import {
-  setSelectedProduct,
-  useSelectedProductSelector,
-} from '@/lib/productsSlice';
 import { Product } from './types';
 import { Card, GridContainer } from '..';
+import {
+  ViewMode,
+  useSelectedProductSelector,
+  useViewModeSelector,
+} from '@/lib/productsSlice';
 
 export const ProductsContainer = (props: {
   data: Product[];
   loading?: boolean;
   error?: SerializedError;
+  onCardClick: (productId: string) => void;
 }) => {
-  const dispatch = useDispatch();
   const selectedProduct = useSelectedProductSelector();
+  const viewMode = useViewModeSelector();
 
   if (props.loading) {
     return <div className="text-gray-900 dark:text-white m-12">Loading...</div>;
@@ -25,36 +25,22 @@ export const ProductsContainer = (props: {
     return <div>{props.error.message}</div>;
   }
 
-  const getNextUrl = (productId: string) => {
-    return productId === selectedProduct
-      ? `/products`
-      : `/products/${productId}`;
-  };
-
-  const handleCardSelected = (id: string) => {
-    if (id === selectedProduct) {
-      dispatch(setSelectedProduct(null));
-    } else {
-      dispatch(setSelectedProduct(id));
-    }
-  };
-
   return (
     <GridContainer>
       {!props.data.length && <div className="m-8">No results</div>}
       {props.data.map((product) => (
-        <Link
-          href={getNextUrl(product.id ?? product.code)}
+        <Card
           key={product.id}
-          onClick={() => handleCardSelected(product.id)}
-        >
-          <Card
-            active={String(product.id ?? product.code) === selectedProduct}
-            header={product.product_name}
-            image={product.image_front_url}
-            description={product.brands}
-          />
-        </Link>
+          onClick={() => props.onCardClick(product.id)}
+          active={
+            ViewMode.productDetails === viewMode &&
+            Boolean(selectedProduct) &&
+            String(product.id ?? product.code) === selectedProduct
+          }
+          header={product.product_name}
+          image={product.image_front_url}
+          description={product.brands}
+        />
       ))}
     </GridContainer>
   );

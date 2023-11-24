@@ -1,12 +1,12 @@
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { API_BASE_URL } from '../../lib/configs';
+import { API_BASE_URL, DEFAULT_PAGE_SIZE } from '../../lib/configs';
 
-const products = ({
+export const products = ({
   page = 1,
-  pageSize = 24,
+  pageSize = DEFAULT_PAGE_SIZE,
 }: {
-  page: number;
+  page?: number;
   pageSize?: number;
 }) =>
   Array.from(Array(pageSize).keys()).map((idx) => ({
@@ -29,7 +29,7 @@ export const server = setupServer(
   rest.get(`${API_BASE_URL}/cgi/search.pl`, (_req, res, ctx) => {
     const searchParams = new URL(_req.url).searchParams;
     const page = Number(searchParams.get('page') ?? 1);
-    const pageSize = Number(searchParams.get('page_size') ?? 35);
+    const pageSize = Number(searchParams.get('page_size') ?? DEFAULT_PAGE_SIZE);
     const search = (searchParams.get('search_terms') as string) ?? '';
     let numberOfProducts = 150;
 

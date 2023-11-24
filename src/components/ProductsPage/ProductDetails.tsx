@@ -1,56 +1,75 @@
 import { FlexContainer } from '..';
 import { useFetchProductQuery } from '@/lib/productsApi';
-import {
-  ViewMode,
-  setViewMode,
-  useSelectedProductSelector,
-  setSelectedProduct,
-} from '@/lib/productsSlice';
 
 import { useRouter } from 'next/router';
 
 import { ProductTable } from './ProductData';
-import { useEffect } from 'react';
+import { skipToken } from '@reduxjs/toolkit/query';
+import {
+  ViewMode,
+  setViewMode,
+  useSelectedProductSelector,
+  useViewModeSelector,
+} from '@/lib/productsSlice';
 import { useAppDispatch } from '@/lib/hooks';
+import { PropsWithChildren } from 'react';
+
+const Layout = (props: PropsWithChildren) => (
+  <div
+    role="product-details"
+    className="sticky top-0 h-full align-middle flex-1"
+  >
+    {props.children}
+  </div>
+);
 
 export const ProductDetails = () => {
   const router = useRouter();
-  const { id, page } = router.query;
   const dispatch = useAppDispatch();
-  const selectedProduct = useSelectedProductSelector();
-  const { data, isLoading, isFetching } = useFetchProductQuery(
-    selectedProduct as string
+  const id = router.query.id;
+  const { data } = useFetchProductQuery(
+    typeof id === 'string' ? id : skipToken,
+    {
+      skip: router.isFallback,
+    }
   );
 
-  useEffect(() => {
-    dispatch(setViewMode(ViewMode.productDetails));
-    dispatch(setSelectedProduct(id as string));
-  }, [id]);
+  const viewMode = useViewModeSelector();
+  const selectedProduct = useSelectedProductSelector();
 
-  if (!selectedProduct) {
+  const handleOnClose = () => {
+    dispatch(setViewMode(ViewMode.products));
+    router.pathname = '/products';
+    delete router.query.id;
+    router.push(router);
+  };
+
+  if (viewMode === ViewMode.products) {
     return null;
   }
 
-  if (isLoading || isFetching) {
-    return <div className="sticky top-0 h-full flex-1">Loading...</div>;
+  if (
+    viewMode === ViewMode.productDetails &&
+    (!data || data?.code !== selectedProduct)
+  ) {
+    return (
+      <Layout>
+        {JSON.stringify(data)}
+        {JSON.stringify(selectedProduct)}
+        <div className="mt-5">Loading...</div>
+      </Layout>
+    );
   }
 
-  const handleOnClose = () => {
-    router.push(`/products?page=${page ?? 1}`);
-    dispatch(setViewMode(ViewMode.products));
-    dispatch(setSelectedProduct(null));
-  };
-
   return (
-    <div className="sticky top-0 h-full flex-1">
+    <Layout>
       <FlexContainer
-        role="product-details"
         header={data?.product?.product_name}
         onClose={handleOnClose}
       >
         {!data?.product && 'Data is not available'}
         {data?.product && <ProductTable product={data.product} />}
       </FlexContainer>
-    </div>
+    </Layout>
   );
 };

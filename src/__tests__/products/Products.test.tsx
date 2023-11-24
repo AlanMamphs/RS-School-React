@@ -8,6 +8,7 @@ import { within, act } from '@testing-library/react';
 import { server } from '../mocks/products';
 import { renderWithProviders } from '../utils';
 import { ProductDetails } from '@/components/ProductsPage/ProductDetails';
+import { DEFAULT_PAGE_SIZE } from '@/lib/configs';
 
 const setup = async () => {
   server.resetHandlers();
@@ -26,7 +27,6 @@ const setup = async () => {
 
 describe('App & Router tests', () => {
   beforeEach(() => {
-    localStorage.clear();
     cleanup();
   });
 
@@ -34,25 +34,13 @@ describe('App & Router tests', () => {
     const { getByTestId, queryAllByRole, getByRole, user } = await setup();
 
     expect(getByTestId('products-page')).toBeVisible();
-    expect(queryAllByRole('card').length).toBe(35);
+    expect(queryAllByRole('card').length).toBe(DEFAULT_PAGE_SIZE);
 
     await user.type(getByRole('search-input'), 'number_of_products-5');
     await user.click(getByRole('search-button'));
-
     expect(queryAllByRole('card').length).toBe(5);
   });
 
-  it('Verify that the component renders the specified number of cards', async () => {
-    const { getByTestId, queryAllByRole, getByRole, user } = await setup();
-
-    expect(getByTestId('products-page')).toBeVisible();
-    expect(queryAllByRole('card').length).toBe(35);
-
-    await user.type(getByRole('search-input'), 'number_of_products-5');
-    await user.click(getByRole('search-button'));
-
-    expect(queryAllByRole('card').length).toBe(5);
-  });
   it('Check that an appropriate message is displayed if no cards are present', async () => {
     const { getByText, queryAllByRole, getByRole, user } = await setup();
 
@@ -64,8 +52,8 @@ describe('App & Router tests', () => {
   });
 
   it('Ensure that the card component renders the relevant card data', async () => {
-    const { queryAllByRole } = await setup();
-
+    const { queryAllByRole, debug } = await setup();
+    debug();
     const card = within(queryAllByRole('card')[0]);
     expect(
       within(card.getByRole('card-image')).getByRole('img').getAttribute('src')
@@ -75,14 +63,12 @@ describe('App & Router tests', () => {
   });
   it('Check that clicking on a card opens a detailed card component', async () => {
     const { queryAllByRole, getByRole, user } = await setup();
-    expect(queryAllByRole('card').length).toBe(35);
-    expect(queryAllByRole('table').length).toBe(0);
-
+    expect(queryAllByRole('card').length).toBe(DEFAULT_PAGE_SIZE);
+    expect(queryAllByRole('product-details').length).toBe(0);
     act(() => {
       user.click(queryAllByRole('card')[0]);
     });
     await new Promise((r) => setTimeout(r, 100));
-    expect(queryAllByRole('table').length).toBe(1);
     getByRole('product-details');
   });
   it('Check that clicking triggers an additional API call to fetch detailed information', async () => {
@@ -93,8 +79,8 @@ describe('App & Router tests', () => {
     });
 
     expect(requestUrls.length).toBe(0);
-
     await user.click(queryAllByRole('card')[20]);
+
     expect(requestUrls.length).toBe(1);
     expect(requestUrls[0].pathname).toBe('/api/v2/product/20');
 
@@ -145,7 +131,7 @@ describe('App & Router tests', () => {
     });
     expect(requestUrls.length).toBe(0);
 
-    expect(queryAllByRole('card').length).toBe(35);
+    expect(queryAllByRole('card').length).toBe(DEFAULT_PAGE_SIZE);
 
     expect(queryAllByText('Product 1')).toHaveLength(1);
     expect(queryAllByText('Product 36')).toHaveLength(0);
@@ -154,7 +140,9 @@ describe('App & Router tests', () => {
 
     expect(requestUrls.length).toBe(1);
     expect(requestUrls[0].searchParams.get('page')).toBe('2');
-    expect(requestUrls[0].searchParams.get('page_size')).toBe('35');
+    expect(requestUrls[0].searchParams.get('page_size')).toBe(
+      DEFAULT_PAGE_SIZE.toString()
+    );
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
     expect(queryAllByText('Product 36')).toHaveLength(1);
@@ -163,7 +151,9 @@ describe('App & Router tests', () => {
 
     expect(requestUrls.length).toBe(2);
     expect(requestUrls[1].searchParams.get('page')).toBe('3');
-    expect(requestUrls[1].searchParams.get('page_size')).toBe('35');
+    expect(requestUrls[1].searchParams.get('page_size')).toBe(
+      DEFAULT_PAGE_SIZE.toString()
+    );
 
     expect(queryAllByText('Product 1')).toHaveLength(0);
     expect(queryAllByText('Product 36')).toHaveLength(0);
@@ -195,21 +185,25 @@ describe('App & Router tests', () => {
     );
   });
 
-  it('Verify that clicking the Search button saves the entered value to the local storage', async () => {
+  it('Verify that clicking the Search button retrieves new items', async () => {
     const { getByRole, user } = await setup();
-
-    expect(localStorage.getItem('search-term')).toBe(null);
+    const requestUrls: URL[] = [];
+    server.events.on('request:start', (request) => {
+      requestUrls.push(request.url);
+    });
+    expect(requestUrls.length).toBe(0);
 
     await user.type(getByRole('search-input'), 'Some value');
-    expect(localStorage.getItem('search-term')).toBe(null);
-
     await user.click(getByRole('search-button'));
+    expect(requestUrls.length).toBe(1);
+    expect(requestUrls[0].pathname).toBe('/cgi/search.pl');
+    expect(requestUrls[0].searchParams.get('search_terms')).toBe('Some value');
 
-    expect(localStorage.getItem('search-term')).toBe('Some value');
     await user.type(getByRole('search-input'), ' and some more');
     await user.click(getByRole('search-button'));
 
-    expect(localStorage.getItem('search-term')).toBe(
+    expect(requestUrls[1].pathname).toBe('/cgi/search.pl');
+    expect(requestUrls[1].searchParams.get('search_terms')).toBe(
       'Some value and some more'
     );
   });
@@ -217,10 +211,25 @@ describe('App & Router tests', () => {
   it('Verify that hitting Enter works as Search Button', async () => {
     const { getByRole, user } = await setup();
 
-    expect(localStorage.getItem('search-term')).toBe(null);
+    const requestUrls: URL[] = [];
+    server.events.on('request:start', (request) => {
+      requestUrls.push(request.url);
+    });
+    expect(requestUrls.length).toBe(0);
 
     await user.type(getByRole('search-input'), 'Some value');
-    expect(localStorage.getItem('search-term')).toBe(null);
+
+    act(() => {
+      fireEvent.keyDown(getByRole('search-input'), {
+        key: 'Enter',
+      });
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(requestUrls.length).toBe(1);
+    expect(requestUrls[0].pathname).toBe('/cgi/search.pl');
+    expect(requestUrls[0].searchParams.get('search_terms')).toBe('Some value');
+
+    await user.type(getByRole('search-input'), ' and some more');
 
     act(() => {
       fireEvent.keyDown(getByRole('search-input'), {
@@ -229,19 +238,9 @@ describe('App & Router tests', () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(localStorage.getItem('search-term')).toBe('Some value');
-    await user.type(getByRole('search-input'), ' and some more');
-  });
-
-  it('Check that the component retrieves the value from the local storage upon mounting', async () => {
-    localStorage.setItem('search-term', 'Some value');
-    const requestUrls: URL[] = [];
-    server.events.on('request:start', (request) => {
-      requestUrls.push(request.url);
-    });
-    expect(requestUrls.length).toBe(0);
-    await setup();
-    expect(requestUrls.length).toBeGreaterThan(1);
-    expect(requestUrls[1].searchParams.get('search_terms')).toBe('Some value');
+    expect(requestUrls[1].pathname).toBe('/cgi/search.pl');
+    expect(requestUrls[1].searchParams.get('search_terms')).toBe(
+      'Some value and some more'
+    );
   });
 });

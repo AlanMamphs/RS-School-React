@@ -1,14 +1,33 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import {
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+  createApi,
+  fetchBaseQuery,
+} from '@reduxjs/toolkit/query/react';
 import { HYDRATE } from 'next-redux-wrapper';
 
 import { API_BASE_URL } from './configs';
 import { Product, SearchResults } from '@/components/ProductsPage/types';
 import { removeFalsyFromObject } from '@/utils';
+import {} from './productsSlice';
+
+const baseQuery = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
+});
+
+const baseQueryLoadingSync: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+
+  return result;
+};
 
 export const productsAPI = createApi({
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-  }),
+  baseQuery: baseQuery,
   extractRehydrationInfo(action, { reducerPath }) {
     if (action.type === HYDRATE) {
       return action.payload[reducerPath];

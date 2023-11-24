@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren } from 'react';
 import { SerializedError } from '@reduxjs/toolkit';
 import { useRouter } from 'next/router';
 
@@ -6,91 +6,122 @@ import { Search, Pagination } from '@/components';
 import { ProductsContainer } from '@/components/ProductsPage';
 
 import { useFetchProductsQuery } from '@/lib/productsApi';
-import {
-  useSearchTermSelector,
-  usePageSizeSelector,
-  setSearchTerm,
-  setPageSize,
-  setPage,
-  useSelectedProductSelector,
-  usePageSelector,
-} from '@/lib/productsSlice';
 
-import { useAppDispatch, useLocalStorage } from '@/lib/hooks';
+import { skipToken } from '@reduxjs/toolkit/query';
+import { useAppDispatch } from '@/lib/hooks';
+import {
+  ViewMode,
+  setPage,
+  setPageSize,
+  setSearchTerm,
+  setSelectedProduct,
+  setViewMode,
+  useSelectedProductSelector,
+  useViewModeSelector,
+} from '@/lib/productsSlice';
+import { DEFAULT_PAGE_SIZE } from '@/lib/configs';
 
 export const ProductsLayout = (props: PropsWithChildren) => {
-  const [lSSearchTerm, setLSSearchTerm] = useLocalStorage('search-term', '');
-
-  useEffect(() => {
-    dispatch(setSearchTerm(lSSearchTerm as string));
-  }, []);
-
-  const searchTerms = useSearchTermSelector();
-  const pageSize = usePageSizeSelector();
-  const selectedProduct = useSelectedProductSelector();
-  const page = usePageSelector();
-
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { data, error, isLoading, isFetching } = useFetchProductsQuery({
-    searchTerms: searchTerms || lSSearchTerm,
-    pageSize,
-    page,
-  });
+  const { id } = router.query;
+  const searchTerms = (router.query.searchTerms as string) ?? '';
 
-  const resetRouter = () => {
-    dispatch(setPage(1));
-    if (selectedProduct) {
+  const page = Number(router.query.page ?? '1');
+  const pageSize = Number(router.query.pageSize ?? DEFAULT_PAGE_SIZE);
+
+  const { data, error } = useFetchProductsQuery(
+    router.isFallback
+      ? skipToken
+      : {
+          searchTerms,
+          pageSize,
+          page,
+        },
+    { skip: router.isFallback }
+  );
+
+  const viewMode = useViewModeSelector();
+  const selectedProduct = useSelectedProductSelector();
+
+  const preNavigation = () => {
+    if (id) {
+      delete router.query.id;
       router.pathname = '/products';
     }
     router.query.page = '1';
-    router.push(router);
+    dispatch(setPage(1));
   };
   const handleSearchClick = (value: string) => {
-    setLSSearchTerm(value);
     dispatch(setSearchTerm(value));
-    resetRouter();
+    preNavigation();
+
+    router.query.searchTerms = value;
+    router.push(router);
   };
 
   const handlePageSizeChange = (pageSize: number) => {
+    preNavigation();
+
+    router.query.pageSize = pageSize.toString();
     dispatch(setPageSize(pageSize));
-    resetRouter();
+    router.push(router);
   };
 
   const handlePageChange = (pageNumber: number) => {
-    dispatch(setPage(pageNumber));
-    router.query.page = pageNumber.toString();
+    preNavigation();
 
-    if (selectedProduct) {
+    router.query.page = pageNumber.toString();
+    dispatch(setPage(pageNumber));
+    if (id) {
       router.pathname = '/products';
     }
+    router.push(router);
+  };
 
+  const handleProductSelected = (productId: string) => {
+    if (viewMode === ViewMode.productDetails && selectedProduct === productId) {
+      dispatch(setViewMode(ViewMode.products));
+      dispatch(setSelectedProduct(null));
+      delete router.query.id;
+      router.pathname = `/products`;
+    } else {
+      dispatch(setViewMode(ViewMode.productDetails));
+      dispatch(setSelectedProduct(productId));
+      router.query.id = productId;
+
+      router.pathname = `/products/${productId}`;
+    }
     router.push(router);
   };
 
   return (
     <div data-testid="products-page">
-      <Search initialValue={lSSearchTerm} onSearchClick={handleSearchClick} />
+      <Search
+        initialValue={(searchTerms as string) ?? ''}
+        onSearchClick={handleSearchClick}
+      />
       <div className="flex gap-4">
         <div className="grow">
           <ProductsContainer
             data={data?.products ?? []}
             error={error as SerializedError}
-            loading={isLoading || isFetching}
+            onCardClick={handleProductSelected}
           />
         </div>
-        {props.children}
+        {viewMode === ViewMode.productDetails && props.children}
       </div>
-      {data?.products && data.count >= pageSize && (
-        <Pagination
-          onPageChange={handlePageChange}
-          currentPage={page}
-          onPageSizeChange={handlePageSizeChange}
-          totalPages={Math.floor(data.count / pageSize)}
-          pageSize={pageSize}
-        />
-      )}
+      {data?.products &&
+        data.count >= Number(pageSize ?? DEFAULT_PAGE_SIZE) && (
+          <Pagination
+            onPageChange={handlePageChange}
+            currentPage={page}
+            onPageSizeChange={handlePageSizeChange}
+            totalPages={Math.floor(data.count / pageSize)}
+            pageSize={pageSize}
+          />
+        )}
     </div>
   );
 };
