@@ -18,7 +18,7 @@
     "test:coverage": "vitest run --coverage",
     "test:coverage:ui": "vitest --ui --coverage",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npm run predeploy && gh-pages -d dist"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.7",

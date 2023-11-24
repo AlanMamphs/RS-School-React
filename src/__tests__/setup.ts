@@ -13,7 +13,6 @@ const resetRouter = () => {
   mockRouter.query = {};
 };
 beforeEach(async () => {
-  localStorage.clear();
   cleanup();
   resetRouter();
   console.log(mockRouter);
