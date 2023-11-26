@@ -1,9 +1,15 @@
-import { NodeProps } from 'postcss';
 import { ComponentProps, PropsWithChildren, ReactNode } from 'react';
+import Image from 'next/image';
 
 export const CardImage = (props: { image: string }) => (
   <div role="card-image" className="h-44 w-full">
-    <img className="max-h-44 max-w-full mx-auto" src={props.image} />
+    <Image
+      className="max-h-44 max-w-full mx-auto"
+      src={props.image}
+      width={100}
+      height={100}
+      alt="Product Image"
+    />
   </div>
 );
 

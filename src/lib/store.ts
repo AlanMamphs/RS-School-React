@@ -20,5 +20,5 @@ setupListeners(store.dispatch);
 
 export const wrapper = createWrapper<ReturnType<typeof createStore>>(
   createStore,
-  { debug: true }
+  {}
 );

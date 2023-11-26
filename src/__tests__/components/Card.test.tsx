@@ -15,7 +15,9 @@ it('Test Card Render via Props', () => {
 
   getByText('Header', { selector: 'h3' });
   getByText('Description', { selector: 'p' });
-  expect(getByRole('img').getAttribute('src')).toBe('https://example.com');
+  expect(getByRole('img').getAttribute('src')).toBe(
+    '/_next/image?url=https%3A%2F%2Fexample.com&w=256&q=75'
+  );
 });
 
 it('Test Card Render via Children', () => {
@@ -28,5 +30,7 @@ it('Test Card Render via Children', () => {
   );
   getByText('Header', { selector: 'h3' });
   getByText('Description', { selector: 'p' });
-  expect(getByRole('img').getAttribute('src')).toBe('https://example.com');
+  expect(getByRole('img').getAttribute('src')).toBe(
+    '/_next/image?url=https%3A%2F%2Fexample.com&w=256&q=75'
+  );
 });
