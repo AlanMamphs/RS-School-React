@@ -1,8 +1,15 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { ComponentProps, PropsWithChildren, ReactNode } from 'react';
+import Image from 'next/image';
 
 export const CardImage = (props: { image: string }) => (
   <div role="card-image" className="h-44 w-full">
-    <img className="max-h-44 max-w-full mx-auto" src={props.image} />
+    <Image
+      className="max-h-44 max-w-full mx-auto"
+      src={props.image}
+      width={100}
+      height={100}
+      alt="Product Image"
+    />
   </div>
 );
 
@@ -27,24 +34,32 @@ export const CardDescription = (
   </p>
 );
 
-export const Card = (
-  props: PropsWithChildren<{
+export const Card = ({
+  header,
+  image,
+  description,
+  active,
+  children,
+  ...restProps
+}: PropsWithChildren<
+  {
     header?: string;
     image?: string;
     description?: string;
     active?: boolean;
-  }>
-) => (
+  } & ComponentProps<'div'>
+>) => (
   <div
     role="card"
     className={`bg-white border-4 rounded-md shadow-2xl p-4 max-h-[40rem] h-full hover:bg-gray-100  dark:text-black center ${
-      props.active ? ' border-indigo-500' : ''
+      active ? ' border-indigo-500' : ''
     }`}
+    {...restProps}
   >
-    {props.image && <CardImage image={props.image} />}
-    {props.header && <CardHeader header={props.header} />}
-    {props.description && <CardDescription description={props.description} />}
-    {props.children}
+    {image && <CardImage image={image} />}
+    {header && <CardHeader header={header} />}
+    {description && <CardDescription description={description} />}
+    {children}
   </div>
 );
 
