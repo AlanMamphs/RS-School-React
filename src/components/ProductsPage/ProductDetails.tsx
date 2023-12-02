@@ -54,8 +54,6 @@ export const ProductDetails = () => {
   ) {
     return (
       <Layout>
-        {JSON.stringify(data)}
-        {JSON.stringify(selectedProduct)}
         <div className="mt-5">Loading...</div>
       </Layout>
     );
